@@ -3692,6 +3692,9 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .danger{border:1px solid #78363c;background:#2c171a;color:#ffb4bb;border-radius:12px;padding:12px;transition:transform .15s}
     .danger:active{transform:scale(.98)}
     .scan-zone{border:1px dashed #69537d;border-radius:16px;padding:18px;text-align:center;background:#120f18}
+    #cropBox{touch-action:none}
+    .crop-handle{width:26px;height:26px;border-radius:50%;background:var(--gold);border:2px solid #1b1306;
+      box-shadow:0 2px 8px rgba(0,0,0,.5);touch-action:none}
     .scan-zone h3{margin-top:0}
     .scan-zone input{margin-top:10px}.preview{max-width:100%;border-radius:14px;margin-top:10px;display:none}
     .progress{font-size:12px;color:var(--muted);margin-top:8px}
@@ -5025,6 +5028,26 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   </div>
 </dialog>
 
+<dialog id="cropDialog">
+  <div class="modal-head"><h3>Beskjær bilde</h3><button class="icon-btn" id="cropCloseBtn" type="button">✕</button></div>
+  <div class="modal-body" style="padding:0">
+    <div id="cropStage" style="position:relative;background:#000;overflow:hidden;line-height:0">
+      <img id="cropImage" draggable="false" style="width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none" />
+      <div id="cropBox" style="position:absolute;border:2px solid var(--gold);box-shadow:0 0 0 9999px rgba(0,0,0,.55);touch-action:none">
+        <div class="crop-handle" data-h="nw" style="position:absolute;top:-12px;left:-12px"></div>
+        <div class="crop-handle" data-h="ne" style="position:absolute;top:-12px;right:-12px"></div>
+        <div class="crop-handle" data-h="sw" style="position:absolute;bottom:-12px;left:-12px"></div>
+        <div class="crop-handle" data-h="se" style="position:absolute;bottom:-12px;right:-12px"></div>
+      </div>
+    </div>
+    <div style="padding:14px 16px;display:grid;gap:10px">
+      <button class="primary" id="confirmCropBtn" type="button">Bruk utsnitt</button>
+      <button class="secondary" id="useFullImageBtn" type="button">Bruk hele bildet</button>
+      <p style="font-size:12px;color:var(--muted);margin:0">Dra i de gyldne hjørnene for å markere kun teksten du vil lese inn (f.eks. én achievement).</p>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="entryDialog">
   <div class="modal-head">
     <div><h3>Ny oppføring</h3><small id="entryQueueInfo" style="color:var(--muted);display:none"></small></div>
@@ -5142,13 +5165,19 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const cleaned=(text||'').replace(/\s+/g,' ').trim();
     if(!cleaned) return [parseText('')];
     const markerSource=[
-      'new\\s+ach[il1]?[e3]?v[e3]?m[e3]?nt!?','ach[il1]?[e3]?v[e3]?m[e3]?nt\\s+unl\\w*ck\\w*!?','new\\s+sk\\w*ll!?','new\\s+qu\\w*st!?',
+      'new\\s+ach[il1]?[e3]?v[e3]?m[e3]?nt!?','ach[il1]?[e3]?v[e3]?m[e3]?nt\\s+unl\\w*ck\\w*!?',
+      'congrat\\w*[^.!?]{0,60}?ach[il1]?[e3]?v[e3]?m[e3]?nt','earned[^.!?]{0,40}?ach[il1]?[e3]?v[e3]?m[e3]?nt',
+      'new\\s+sk\\w*ll!?','new\\s+qu\\w*st!?',
       'you\\s+have\\s+rece\\w*ved!?','new\\s+t\\w*tle!?','new\\s+[il1]tem!?','qu\\w*st\\s*(?:complete|updated|failed)!?'
     ].join('|');
     const re=new RegExp(markerSource,'gi');
     const matches=[...cleaned.matchAll(re)];
     if(matches.length<=1) return [parseText(cleaned)];
     const blocks=[];
+    if(matches[0].index>0){
+      const lead=cleaned.slice(0,matches[0].index).trim();
+      if(lead) blocks.push(lead);
+    }
     for(let i=0;i<matches.length;i++){
       const start=matches[i].index;
       const end = i+1<matches.length ? matches[i+1].index : cleaned.length;
@@ -5171,6 +5200,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const patterns=[
       /new\s+ach[il1]?[e3]?v[e3]?m[e3]?nt!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /ach[il1]?[e3]?v[e3]?m[e3]?nt\s+unl\w*ck\w*!?\s*[:\-]?\s*([^.!?]{3,80})/i,
+      /earned[^.!?]{0,40}?ach[il1]?[e3]?v[e3]?m[e3]?nt!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /new\s+sk\w*ll!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /new\s+qu\w*st!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /you\s+have\s+rece\w*ved!?\s*[:\-]?\s*([^.!?]{3,80})/i
@@ -5254,7 +5284,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   $('#imageInput').onchange=async e=>{
     const file=e.target.files?.[0]; if(!file)return;
-    await runOCR(file);
+    openCropDialog(file);
+    e.target.value='';
   };
 
   let cameraStream=null;
@@ -5284,9 +5315,86 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
     canvas.toBlob(blob=>{
       closeCamera();
-      if(blob) runOCR(blob);
+      if(blob) openCropDialog(blob);
     },'image/jpeg',0.92);
   };
+
+  // --- Crop dialog: let the user select just the relevant text before OCR runs ---
+  let cropSourceFile=null;
+  function openCropDialog(file){
+    cropSourceFile=file;
+    const img=$('#cropImage');
+    img.onload=()=>{
+      const dw=img.clientWidth, dh=img.clientHeight;
+      const bw=dw*0.86, bh=Math.min(dh*0.4, dh*0.9);
+      const bx=(dw-bw)/2, by=(dh-bh)/2;
+      setCropBox(bx,by,bw,bh);
+    };
+    img.src=URL.createObjectURL(file);
+    $('#cropDialog').showModal();
+  }
+  function setCropBox(x,y,w,h){
+    const box=$('#cropBox');
+    box.style.left=x+'px'; box.style.top=y+'px'; box.style.width=w+'px'; box.style.height=h+'px';
+  }
+  function getCropBox(){
+    const box=$('#cropBox');
+    return {x:parseFloat(box.style.left)||0,y:parseFloat(box.style.top)||0,w:parseFloat(box.style.width)||0,h:parseFloat(box.style.height)||0};
+  }
+  function clampCropBox(b){
+    const img=$('#cropImage');
+    const maxW=img.clientWidth, maxH=img.clientHeight;
+    b.w=Math.max(24,Math.min(b.w,maxW));
+    b.h=Math.max(24,Math.min(b.h,maxH));
+    b.x=Math.max(0,Math.min(b.x,maxW-b.w));
+    b.y=Math.max(0,Math.min(b.y,maxH-b.h));
+    return b;
+  }
+  (function initCropDrag(){
+    const box=$('#cropBox');
+    let mode=null, startX=0, startY=0, startBox=null;
+    box.addEventListener('pointerdown',e=>{
+      const handle=e.target.closest('.crop-handle');
+      mode=handle?handle.dataset.h:'move';
+      startX=e.clientX; startY=e.clientY; startBox=getCropBox();
+      box.setPointerCapture(e.pointerId);
+      e.stopPropagation();
+    });
+    box.addEventListener('pointermove',e=>{
+      if(!mode) return;
+      const dx=e.clientX-startX, dy=e.clientY-startY;
+      let b={...startBox};
+      if(mode==='move'){ b.x=startBox.x+dx; b.y=startBox.y+dy; }
+      else{
+        if(mode.includes('n')){ b.y=startBox.y+dy; b.h=startBox.h-dy; }
+        if(mode.includes('s')){ b.h=startBox.h+dy; }
+        if(mode.includes('w')){ b.x=startBox.x+dx; b.w=startBox.w-dx; }
+        if(mode.includes('e')){ b.w=startBox.w+dx; }
+      }
+      b=clampCropBox(b);
+      setCropBox(b.x,b.y,b.w,b.h);
+    });
+    box.addEventListener('pointerup',()=>{ mode=null; });
+    box.addEventListener('pointercancel',()=>{ mode=null; });
+  })();
+  $('#confirmCropBtn').onclick=()=>{
+    const img=$('#cropImage');
+    const b=getCropBox();
+    const scaleX=img.naturalWidth/img.clientWidth, scaleY=img.naturalHeight/img.clientHeight;
+    const sx=b.x*scaleX, sy=b.y*scaleY, sw=b.w*scaleX, sh=b.h*scaleY;
+    const canvas=document.createElement('canvas');
+    canvas.width=Math.max(1,Math.round(sw)); canvas.height=Math.max(1,Math.round(sh));
+    canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob=>{
+      $('#cropDialog').close();
+      if(blob) runOCR(blob);
+    },'image/jpeg',0.95);
+  };
+  $('#useFullImageBtn').onclick=()=>{
+    $('#cropDialog').close();
+    if(cropSourceFile) runOCR(cropSourceFile);
+  };
+  $('#cropCloseBtn').onclick=()=>{ $('#cropDialog').close(); };
 
   $('#exportBtn').onclick=()=>{
     const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});

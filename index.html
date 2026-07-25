@@ -5266,13 +5266,23 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     startReviewQueue(splitEntries(text));
   };
 
+  let ocrWorker=null;
+  async function getOcrWorker(){
+    if(!ocrWorker){
+      ocrWorker=await Tesseract.createWorker('eng',1,{logger:m=>{
+        if(m.status==='recognizing text') $('#ocrProgress').textContent=`Leser tekst… ${Math.round((m.progress||0)*100)} %`;
+      }});
+      await ocrWorker.setParameters({tessedit_pageseg_mode:'6'});
+    }
+    return ocrWorker;
+  }
+
   async function runOCR(file){
     const img=$('#imagePreview'); img.src=URL.createObjectURL(file); img.style.display='block';
     $('#ocrProgress').textContent='Leser tekst…';
     try{
-      const result=await Tesseract.recognize(file,'eng',{logger:m=>{
-        if(m.status==='recognizing text') $('#ocrProgress').textContent=`Leser tekst… ${Math.round((m.progress||0)*100)} %`;
-      }});
+      const worker=await getOcrWorker();
+      const result=await worker.recognize(file);
       const text=result.data.text.trim();
       $('#rawText').value=text;
       $('#ocrProgress').textContent='Teksten er lest. Kontroller før lagring.';
@@ -5391,8 +5401,14 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     },'image/jpeg',0.95);
   };
   $('#useFullImageBtn').onclick=()=>{
-    $('#cropDialog').close();
-    if(cropSourceFile) runOCR(cropSourceFile);
+    const img=$('#cropImage');
+    const canvas=document.createElement('canvas');
+    canvas.width=img.naturalWidth; canvas.height=img.naturalHeight;
+    canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+    canvas.toBlob(blob=>{
+      $('#cropDialog').close();
+      if(blob) runOCR(blob); else if(cropSourceFile) runOCR(cropSourceFile);
+    },'image/jpeg',0.95);
   };
   $('#cropCloseBtn').onclick=()=>{ $('#cropDialog').close(); };
 

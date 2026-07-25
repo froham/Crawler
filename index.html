@@ -3663,7 +3663,10 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .entry{border:1px solid var(--line);border-radius:15px;padding:12px;background:linear-gradient(145deg,#1b1624,#110e17);
       transition:border-color .15s,transform .15s}
     .entry:active{border-color:var(--gold-dim)}
-    .entry-top{display:flex;justify-content:space-between;gap:8px}.entry h4{margin:0;font-size:15px}.entry p{margin:7px 0;color:#d9d0e2;font-size:13px;line-height:1.4}
+    .entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+    .entry h4{margin:0;font-size:15px;min-width:0;word-break:break-word;line-height:1.3}
+    .entry{cursor:pointer}
+    .entry p{margin:7px 0;color:#d9d0e2;font-size:13px;line-height:1.4;word-break:break-word;white-space:pre-wrap}
     .meta{display:flex;gap:6px;flex-wrap:wrap}.chip{font-size:10px;border:1px solid #4d3d60;border-radius:999px;padding:4px 7px;color:var(--muted);background:rgba(255,255,255,.02)}
     .empty{color:var(--muted);font-size:13px;text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:15px}
     .fab{position:fixed;right:18px;bottom:calc(88px + var(--safe-bottom));width:58px;height:58px;border-radius:50%;
@@ -3683,7 +3686,10 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);
       background:linear-gradient(180deg,rgba(240,201,109,.06),transparent)}
     .modal-head h3{margin:0;letter-spacing:.3px}.modal-body{padding:14px 16px;max-height:76vh;overflow:auto}
-    .form-grid{display:grid;gap:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .form-grid{display:grid;gap:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+    .field{display:grid;gap:5px}
+    .field label{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.2px}
+    .field label small{font-weight:400;color:var(--muted);font-size:11px;display:block;margin-top:1px}
     .primary{border:1px solid #9f7c3c;background:linear-gradient(145deg,#f0c96d,#b17d2f);color:#201507;
       border-radius:12px;padding:12px;font-weight:800;box-shadow:0 8px 20px rgba(240,201,109,.18);transition:transform .15s}
     .primary:active{transform:scale(.98)}
@@ -5050,23 +5056,35 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
 <dialog id="entryDialog">
   <div class="modal-head">
-    <div><h3>Ny oppføring</h3><small id="entryQueueInfo" style="color:var(--muted);display:none"></small></div>
+    <div><h3 id="entryDialogTitle">Ny oppføring</h3><small id="entryQueueInfo" style="color:var(--muted);display:none"></small></div>
     <button class="icon-btn" data-close="entryDialog">✕</button>
   </div>
   <div class="modal-body">
     <div class="form-grid">
-      <div class="two">
+      <div class="field"><label>Type <small>– hva slags hendelse er dette?</small></label>
         <select id="entryType">
           <option value="achievement">Achievement</option><option value="item">Item</option>
           <option value="skill">Skill</option><option value="quest">Quest</option><option value="note">Notat</option>
         </select>
+      </div>
+      <div class="field"><label>Hvem gjelder det <small>– Carl, Donut eller begge</small></label>
         <select id="entryOwner"><option>Carl</option><option>Donut</option><option>Begge</option></select>
       </div>
-      <input id="entryTitle" placeholder="Navn" />
-      <textarea id="entryDescription" placeholder="Beskrivelse"></textarea>
-      <div class="two"><input id="entryReward" placeholder="Belønning / effekt" /><input id="entryRarity" placeholder="Sjeldenhet" /></div>
-      <div class="two"><input id="entryBook" type="number" min="1" placeholder="Bok" /><input id="entryChapter" type="number" min="1" placeholder="Kapittel" /></div>
+      <div class="field"><label>Navn <small>– tittelen, f.eks. «Crazy Cat Lady»</small></label>
+        <input id="entryTitle" placeholder="Navn" />
+      </div>
+      <div class="field"><label>Beskrivelse <small>– full tekst fra boken</small></label>
+        <textarea id="entryDescription" placeholder="Beskrivelse"></textarea>
+      </div>
+      <div class="two">
+        <div class="field"><label>Belønning <small>– valgfritt</small></label><input id="entryReward" placeholder="Belønning / effekt" /></div>
+        <div class="field"><label>Sjeldenhet <small>– valgfritt</small></label><input id="entryRarity" placeholder="Sjeldenhet" /></div>
+      </div>
+      <div class="field"><label>Hvor i historien <small>– bok/kapittel der dette skjedde. Styrer når det dukker opp i lister (skjules til du har lest dit).</small></label>
+        <div class="two"><input id="entryBook" type="number" min="1" placeholder="Bok" /><input id="entryChapter" type="number" min="1" placeholder="Kapittel" /></div>
+      </div>
       <button class="secondary" id="skipEntry" type="button" style="display:none">Hopp over</button>
+      <button class="danger" id="deleteEntryBtn" type="button" style="display:none">Slett oppføring</button>
       <button class="primary" id="saveEntry">Lagre oppføring</button>
     </div>
   </div>
@@ -5104,7 +5122,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',note:'Notat'}[type] || type; }
 
   function entryCard(e){
-    return `<article class="entry">
+    return `<article class="entry" data-id="${e.id}">
       <div class="entry-top"><h4>${icon(e.type)} ${esc(e.title)}</h4><button class="icon-btn delete-entry" data-id="${e.id}" style="padding:5px 8px">🗑</button></div>
       <p>${esc(e.description || '')}</p>
       <div class="meta"><span class="chip">${typeLabel(e.type)}</span><span class="chip">${esc(e.owner)}</span>
@@ -5127,26 +5145,42 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     $('#inventoryList').innerHTML=items.map(entryCard).join('') || `<div class="empty">Inventory er tomt.</div>`;
     const timeline=[...visible].sort((a,b)=>(a.book-b.book)||(a.chapter-b.chapter)||(a.createdAt-b.createdAt));
     $('#timelineList').innerHTML=timeline.map(entryCard).join('') || `<div class="empty">Tidslinjen er tom.</div>`;
-    $$('.delete-entry').forEach(btn=>btn.onclick=()=>{state.entries=state.entries.filter(e=>e.id!==btn.dataset.id);persist();render();toast('Slettet');});
+    $$('.delete-entry').forEach(btn=>btn.onclick=(ev)=>{
+      ev.stopPropagation();
+      state.entries=state.entries.filter(e=>e.id!==btn.dataset.id);persist();render();toast('Slettet');
+    });
+    $$('.entry').forEach(card=>card.onclick=()=>{
+      const found=state.entries.find(e=>e.id===card.dataset.id);
+      if(found) editEntry(found);
+    });
   }
 
   let reviewQueue = [];
   let reviewIndex = 0;
+  let editingId = null;
 
   function openEntry(prefill={}){
     $('#entryType').value=prefill.type||'achievement'; $('#entryOwner').value=prefill.owner||'Carl';
     $('#entryTitle').value=prefill.title||''; $('#entryDescription').value=prefill.description||'';
     $('#entryReward').value=prefill.reward||''; $('#entryRarity').value=prefill.rarity||'';
     $('#entryBook').value=prefill.book||state.book; $('#entryChapter').value=prefill.chapter||state.chapter;
-    const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry');
+    const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry'), delBtn=$('#deleteEntryBtn'), heading=$('#entryDialogTitle');
     if(reviewQueue.length>1){
       info.textContent=`Oppføring ${reviewIndex+1} av ${reviewQueue.length}`;
       info.style.display='block'; skipBtn.style.display='block';
     } else {
       info.textContent=''; info.style.display='none'; skipBtn.style.display='none';
     }
+    heading.textContent = editingId ? 'Rediger oppføring' : 'Ny oppføring';
+    delBtn.style.display = editingId ? 'block' : 'none';
     const dlg=$('#entryDialog');
     if(!dlg.open) dlg.showModal();
+  }
+
+  function editEntry(entry){
+    reviewQueue=[]; reviewIndex=0;
+    editingId=entry.id;
+    openEntry(entry);
   }
 
   function showQueueEntry(){
@@ -5155,6 +5189,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   }
 
   function startReviewQueue(entries){
+    editingId=null;
     reviewQueue = (entries && entries.length) ? entries : [parseText('')];
     reviewIndex = 0;
     if(reviewQueue.length>1) toast(`Fant ${reviewQueue.length} oppføringer`);
@@ -5223,11 +5258,11 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     $$('[data-nav]').forEach(b=>b.classList.toggle('active',b===btn));
     $$('.screen').forEach(s=>s.classList.toggle('active',s.dataset.screen===btn.dataset.nav));
   });
-  $('#quickAdd').onclick=()=>openEntry();
+  $('#quickAdd').onclick=()=>{ editingId=null; openEntry(); };
   $('#settingsBtn').onclick=()=>$('#settingsDialog').showModal();
   $$('[data-close]').forEach(b=>b.onclick=()=>{
     document.getElementById(b.dataset.close).close();
-    if(b.dataset.close==='entryDialog'){ reviewQueue=[]; reviewIndex=0; }
+    if(b.dataset.close==='entryDialog'){ reviewQueue=[]; reviewIndex=0; editingId=null; }
   });
 
   $('#bookSelect').onchange=e=>{state.book=Number(e.target.value);persist();render();};
@@ -5235,21 +5270,31 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   $('#levelInput').onchange=e=>{state.level=Math.max(1,Number(e.target.value)||1);persist();render();};
 
   $('#saveEntry').onclick=()=>{
-    const entry={
-      id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),
+    const fields={
       type:$('#entryType').value, owner:$('#entryOwner').value,
       title:$('#entryTitle').value.trim()||'Uten navn',
       description:$('#entryDescription').value.trim(),
       reward:$('#entryReward').value.trim(), rarity:$('#entryRarity').value.trim(),
-      book:Number($('#entryBook').value)||state.book, chapter:Number($('#entryChapter').value)||state.chapter,
-      createdAt:Date.now()
+      book:Number($('#entryBook').value)||state.book, chapter:Number($('#entryChapter').value)||state.chapter
     };
+    if(editingId){
+      const idx=state.entries.findIndex(e=>e.id===editingId);
+      if(idx>-1) state.entries[idx]={...state.entries[idx], ...fields};
+      editingId=null; persist(); render(); $('#entryDialog').close(); toast('Oppdatert');
+      return;
+    }
+    const entry={ id:crypto.randomUUID?crypto.randomUUID():String(Date.now()), ...fields, createdAt:Date.now() };
     state.entries.push(entry); persist(); render();
     if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
       reviewIndex++; toast('Lagret – neste oppføring'); showQueueEntry();
     } else {
       reviewQueue=[]; reviewIndex=0; $('#entryDialog').close(); toast('Lagret');
     }
+  };
+
+  $('#deleteEntryBtn').onclick=()=>{
+    if(editingId){ state.entries=state.entries.filter(e=>e.id!==editingId); persist(); render(); }
+    editingId=null; $('#entryDialog').close(); toast('Slettet');
   };
 
   $('#skipEntry').onclick=()=>{
@@ -5432,7 +5477,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     }
   };
 
-  $$('.slot').forEach(b=>b.onclick=()=>openEntry({type:'item',title:b.dataset.slot,description:`Utstyr for slot: ${b.dataset.slot}`}));
+  $$('.slot').forEach(b=>b.onclick=()=>{ editingId=null; openEntry({type:'item',title:b.dataset.slot,description:`Utstyr for slot: ${b.dataset.slot}`}); });
   render();
 })();
 </script>

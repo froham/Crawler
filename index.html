@@ -5121,13 +5121,15 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',note:'📝'}[type] || '•'; }
   function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',note:'Notat'}[type] || type; }
 
+  function ownerIcon(owner){ return {Carl:'🧍',Donut:'🐱',Begge:'🧍🐱'}[owner] || '👤'; }
+
   function entryCard(e){
     return `<article class="entry" data-id="${e.id}">
       <div class="entry-top"><h4>${icon(e.type)} ${esc(e.title)}</h4><button class="icon-btn delete-entry" data-id="${e.id}" style="padding:5px 8px">🗑</button></div>
       <p>${esc(e.description || '')}</p>
-      <div class="meta"><span class="chip">${typeLabel(e.type)}</span><span class="chip">${esc(e.owner)}</span>
-      <span class="chip">Bok ${e.book} · Kap. ${e.chapter}</span>${e.rarity?`<span class="chip">${esc(e.rarity)}</span>`:''}
-      ${e.reward?`<span class="chip">${esc(e.reward)}</span>`:''}</div>
+      <div class="meta"><span class="chip">${icon(e.type)} ${typeLabel(e.type)}</span><span class="chip">${ownerIcon(e.owner)} ${esc(e.owner)}</span>
+      <span class="chip">📖 Bok ${e.book} · Kap. ${e.chapter}</span>${e.rarity?`<span class="chip">⭐ ${esc(e.rarity)}</span>`:''}
+      ${e.reward?`<span class="chip">🎁 ${esc(e.reward)}</span>`:''}</div>
     </article>`;
   }
 
@@ -5245,7 +5247,12 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
     let reward='';
     const rewardMatch=cleaned.match(/(?:reward|belønning)\s*[:\-]\s*([^.!?]{2,100})/i);
-    if(rewardMatch) reward=rewardMatch[1].trim();
+    if(rewardMatch){
+      reward=rewardMatch[1].trim()
+        .replace(/^you(?:'ve| have)?\s+(?:received|got|gotten|obtained|earned)\s+(?:a|an|the)?\s*/i,'')
+        .replace(/^you\s+(?:get|receive)\s+(?:a|an|the)?\s*/i,'')
+        .trim();
+    }
 
     let rarity='';
     for(const r of ['legendary','epic','rare','common','unique']){

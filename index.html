@@ -209,7 +209,12 @@
       <div class="scan-zone">
         <h3>Skann tekst</h3>
         <p style="color:var(--muted);font-size:13px">Ta bilde av achievement, item, skill eller quest. Bildet behandles lokalt i nettleseren.</p>
-        <input id="imageInput" type="file" accept="image/*" />
+        <div style="display:grid;gap:8px;margin-top:10px">
+          <button class="primary" id="openCameraBtn" type="button">📷 Ta bilde i appen</button>
+          <label class="secondary" style="display:block;text-align:center">Velg fra bibliotek
+            <input id="imageInput" type="file" accept="image/*" hidden />
+          </label>
+        </div>
         <img id="imagePreview" class="preview" alt="Forhåndsvisning" />
         <div class="progress" id="ocrProgress"></div>
       </div>
@@ -231,8 +236,23 @@
   <button data-nav="scan"><strong>📷</strong>Skann</button>
 </nav>
 
+<dialog id="cameraDialog">
+  <div class="modal-head"><h3>Kamera</h3><button class="icon-btn" id="cameraCloseBtn" type="button">✕</button></div>
+  <div class="modal-body" style="padding:0">
+    <video id="cameraView" playsinline autoplay muted style="width:100%;display:block;background:#000;max-height:60vh;object-fit:cover"></video>
+    <canvas id="cameraCanvas" style="display:none"></canvas>
+    <div style="padding:14px 16px;display:grid;gap:10px">
+      <button class="primary" id="captureBtn" type="button">Ta bilde</button>
+      <p style="font-size:12px;color:var(--muted);margin:0">Kameraet kjører kun lokalt i nettleseren og slås av når du lukker dette vinduet.</p>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="entryDialog">
-  <div class="modal-head"><h3>Ny oppføring</h3><button class="icon-btn" data-close="entryDialog">✕</button></div>
+  <div class="modal-head">
+    <div><h3>Ny oppføring</h3><small id="entryQueueInfo" style="color:var(--muted);display:none"></small></div>
+    <button class="icon-btn" data-close="entryDialog">✕</button>
+  </div>
   <div class="modal-body">
     <div class="form-grid">
       <div class="two">
@@ -246,6 +266,7 @@
       <textarea id="entryDescription" placeholder="Beskrivelse"></textarea>
       <div class="two"><input id="entryReward" placeholder="Belønning / effekt" /><input id="entryRarity" placeholder="Sjeldenhet" /></div>
       <div class="two"><input id="entryBook" type="number" min="1" placeholder="Bok" /><input id="entryChapter" type="number" min="1" placeholder="Kapittel" /></div>
+      <button class="secondary" id="skipEntry" type="button" style="display:none">Hopp over</button>
       <button class="primary" id="saveEntry">Lagre oppføring</button>
     </div>
   </div>
@@ -309,12 +330,55 @@
     $$('.delete-entry').forEach(btn=>btn.onclick=()=>{state.entries=state.entries.filter(e=>e.id!==btn.dataset.id);persist();render();toast('Slettet');});
   }
 
+  let reviewQueue = [];
+  let reviewIndex = 0;
+
   function openEntry(prefill={}){
     $('#entryType').value=prefill.type||'achievement'; $('#entryOwner').value=prefill.owner||'Carl';
     $('#entryTitle').value=prefill.title||''; $('#entryDescription').value=prefill.description||'';
     $('#entryReward').value=prefill.reward||''; $('#entryRarity').value=prefill.rarity||'';
     $('#entryBook').value=prefill.book||state.book; $('#entryChapter').value=prefill.chapter||state.chapter;
-    $('#entryDialog').showModal();
+    const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry');
+    if(reviewQueue.length>1){
+      info.textContent=`Oppføring ${reviewIndex+1} av ${reviewQueue.length}`;
+      info.style.display='block'; skipBtn.style.display='block';
+    } else {
+      info.textContent=''; info.style.display='none'; skipBtn.style.display='none';
+    }
+    const dlg=$('#entryDialog');
+    if(!dlg.open) dlg.showModal();
+  }
+
+  function showQueueEntry(){
+    if(reviewIndex>=reviewQueue.length){ reviewQueue=[]; reviewIndex=0; return; }
+    openEntry(reviewQueue[reviewIndex]);
+  }
+
+  function startReviewQueue(entries){
+    reviewQueue = (entries && entries.length) ? entries : [parseText('')];
+    reviewIndex = 0;
+    if(reviewQueue.length>1) toast(`Fant ${reviewQueue.length} oppføringer`);
+    showQueueEntry();
+  }
+
+  function splitEntries(text){
+    const cleaned=(text||'').replace(/\s+/g,' ').trim();
+    if(!cleaned) return [parseText('')];
+    const markerSource=[
+      'new achievement!?','achievement unlocked!?','new skill!?','new quest!?',
+      'you have received!?','new title!?','new item!?','quest (?:complete|updated|failed)!?'
+    ].join('|');
+    const re=new RegExp(markerSource,'gi');
+    const matches=[...cleaned.matchAll(re)];
+    if(matches.length<=1) return [parseText(cleaned)];
+    const blocks=[];
+    for(let i=0;i<matches.length;i++){
+      const start=matches[i].index;
+      const end = i+1<matches.length ? matches[i+1].index : cleaned.length;
+      const block=cleaned.slice(start,end).trim();
+      if(block) blocks.push(block);
+    }
+    return blocks.length ? blocks.map(parseText) : [parseText(cleaned)];
   }
 
   function parseText(text){
@@ -354,7 +418,10 @@
   });
   $('#quickAdd').onclick=()=>openEntry();
   $('#settingsBtn').onclick=()=>$('#settingsDialog').showModal();
-  $$('[data-close]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close).close());
+  $$('[data-close]').forEach(b=>b.onclick=()=>{
+    document.getElementById(b.dataset.close).close();
+    if(b.dataset.close==='entryDialog'){ reviewQueue=[]; reviewIndex=0; }
+  });
 
   $('#bookSelect').onchange=e=>{state.book=Number(e.target.value);persist();render();};
   $('#chapterInput').onchange=e=>{state.chapter=Math.max(1,Number(e.target.value)||1);persist();render();};
@@ -370,17 +437,29 @@
       book:Number($('#entryBook').value)||state.book, chapter:Number($('#entryChapter').value)||state.chapter,
       createdAt:Date.now()
     };
-    state.entries.push(entry); persist(); render(); $('#entryDialog').close(); toast('Lagret');
+    state.entries.push(entry); persist(); render();
+    if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
+      reviewIndex++; toast('Lagret – neste oppføring'); showQueueEntry();
+    } else {
+      reviewQueue=[]; reviewIndex=0; $('#entryDialog').close(); toast('Lagret');
+    }
+  };
+
+  $('#skipEntry').onclick=()=>{
+    if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
+      reviewIndex++; showQueueEntry();
+    } else {
+      reviewQueue=[]; reviewIndex=0; $('#entryDialog').close();
+    }
   };
 
   $('#analyseBtn').onclick=()=>{
     const text=$('#rawText').value.trim();
     if(!text){toast('Legg inn tekst først');return;}
-    openEntry(parseText(text));
+    startReviewQueue(splitEntries(text));
   };
 
-  $('#imageInput').onchange=async e=>{
-    const file=e.target.files?.[0]; if(!file)return;
+  async function runOCR(file){
     const img=$('#imagePreview'); img.src=URL.createObjectURL(file); img.style.display='block';
     $('#ocrProgress').textContent='Leser tekst…';
     try{
@@ -390,10 +469,46 @@
       const text=result.data.text.trim();
       $('#rawText').value=text;
       $('#ocrProgress').textContent='Teksten er lest. Kontroller før lagring.';
-      openEntry(parseText(text));
+      startReviewQueue(splitEntries(text));
     }catch(err){
       console.error(err); $('#ocrProgress').textContent='OCR feilet. Skriv eller lim inn teksten manuelt.';
     }
+  }
+
+  $('#imageInput').onchange=async e=>{
+    const file=e.target.files?.[0]; if(!file)return;
+    await runOCR(file);
+  };
+
+  let cameraStream=null;
+  async function openCamera(){
+    if(!navigator.mediaDevices?.getUserMedia){ toast('Kamera støttes ikke i denne nettleseren'); return; }
+    try{
+      cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+      $('#cameraView').srcObject=cameraStream;
+      $('#cameraDialog').showModal();
+    }catch(err){
+      console.error(err);
+      toast('Fikk ikke kameratilgang. Bruk «Velg fra bibliotek» i stedet.');
+    }
+  }
+  function closeCamera(){
+    if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+    if($('#cameraDialog').open) $('#cameraDialog').close();
+  }
+  $('#openCameraBtn').onclick=openCamera;
+  $('#cameraCloseBtn').onclick=closeCamera;
+  $('#cameraDialog').addEventListener('close',()=>{
+    if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+  });
+  $('#captureBtn').onclick=()=>{
+    const video=$('#cameraView'), canvas=$('#cameraCanvas');
+    canvas.width=video.videoWidth||720; canvas.height=video.videoHeight||960;
+    canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+    canvas.toBlob(blob=>{
+      closeCamera();
+      if(blob) runOCR(blob);
+    },'image/jpeg',0.92);
   };
 
   $('#exportBtn').onclick=()=>{

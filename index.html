@@ -3629,9 +3629,12 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .inspect{display:grid;grid-template-columns:58px 1fr 58px;gap:8px;align-items:center;padding:12px}
     .slots{display:grid;gap:8px}
     .slot{aspect-ratio:1;border:1px solid #5d4b70;border-radius:12px;background:linear-gradient(145deg,#241a31,#100d15);
-      display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);text-align:center;padding:4px;
-      transition:border-color .15s,box-shadow .15s}
+      display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:var(--muted);text-align:center;padding:4px;gap:2px;
+      transition:border-color .15s,box-shadow .15s;line-height:1.2}
     .slot:active{border-color:var(--gold-dim);box-shadow:0 0 12px rgba(240,201,109,.15)}
+    .slot.filled{color:var(--text);font-weight:700}
+    .slot .slot-icon{font-size:18px}
+    .slot .slot-name{font-size:10px;font-weight:700;word-break:break-word;max-width:100%}
     .character-stage{position:relative;min-height:360px;border:1px solid #3e3150;border-radius:18px;
       background:radial-gradient(circle at 50% 25%,#4e2b58 0,#25172f 32%,#100d16 78%);
       overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
@@ -3651,6 +3654,17 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .attr-cell{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:7px 4px;
       text-align:center;font-weight:800;font-size:15px;cursor:pointer;transition:border-color .15s,transform .15s}
     .attr-cell:active{border-color:var(--gold-dim);transform:scale(.95)}
+    .stat-row{display:grid;grid-template-columns:64px 1fr 1fr;gap:8px;align-items:center;padding:10px 2px;border-bottom:1px solid var(--line)}
+    .stat-row:last-child{border-bottom:none}
+    .stat-row-label{font-size:12px;font-weight:800;color:var(--muted)}
+    .stat-row-owner{display:flex;flex-direction:column;gap:5px;align-items:center}
+    .stat-row-owner>small{font-size:10px;color:var(--muted)}
+    .stepper{display:flex;align-items:center;gap:8px}
+    .stepper-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+      color:var(--text);font-weight:800;font-size:16px;line-height:1}
+    .stepper-btn:active{border-color:var(--gold-dim);background:rgba(240,201,109,.1)}
+    .stepper-val{min-width:52px;text-align:center;font-weight:800;font-size:15px;cursor:pointer;padding:5px 2px;border-radius:7px;color:var(--gold)}
+    .stepper-val:active{background:rgba(240,201,109,.12)}
     .stat{border:1px solid var(--line);border-radius:13px;padding:10px;background:rgba(255,255,255,.03);transition:border-color .15s}
     .stat:active{border-color:var(--gold-dim)}
     .stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted)}
@@ -3696,7 +3710,12 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .modal-head h3{margin:0;letter-spacing:.3px}.modal-body{padding:14px 16px;max-height:76vh;overflow:auto}
     .form-grid{display:grid;gap:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
     .field{display:grid;gap:5px}
-    .mini-area{resize:none;min-height:44px;overflow:hidden;line-height:1.35;font-family:inherit}
+    .mini-area{resize:none;min-height:44px;overflow:hidden;line-height:1.35;font-family:inherit;padding-right:38px}
+    .mini-area.expanded{overflow:auto}
+    .mini-wrap{position:relative}
+    .expand-btn{position:absolute;right:6px;top:6px;width:28px;height:28px;border-radius:8px;
+      border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--muted);font-size:13px;cursor:pointer;z-index:2}
+    .expand-btn:active{border-color:var(--gold-dim);color:var(--gold)}
     .field label{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.2px}
     .field label small{font-weight:400;color:var(--muted);font-size:11px;display:block;margin-top:1px}
     .primary{border:1px solid #9f7c3c;background:linear-gradient(145deg,#f0c96d,#b17d2f);color:#201507;
@@ -4974,23 +4993,9 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
           </div>
         </div>
 
-        <div class="attr-grid">
-          <div class="attr-head"></div><div class="attr-head">Carl</div><div class="attr-head">🐱 Donut</div>
-          <div class="attr-label">STR</div>
-          <div class="attr-cell" data-stat="stats.Carl.str" data-label="Carl – Strength"><span id="stat-Carl-str">0</span></div>
-          <div class="attr-cell" data-stat="stats.Donut.str" data-label="Donut – Strength"><span id="stat-Donut-str">0</span></div>
-          <div class="attr-label">INT</div>
-          <div class="attr-cell" data-stat="stats.Carl.int" data-label="Carl – Intelligence"><span id="stat-Carl-int">0</span></div>
-          <div class="attr-cell" data-stat="stats.Donut.int" data-label="Donut – Intelligence"><span id="stat-Donut-int">0</span></div>
-          <div class="attr-label">CON</div>
-          <div class="attr-cell" data-stat="stats.Carl.con" data-label="Carl – Constitution"><span id="stat-Carl-con">0</span></div>
-          <div class="attr-cell" data-stat="stats.Donut.con" data-label="Donut – Constitution"><span id="stat-Donut-con">0</span></div>
-          <div class="attr-label">DEX</div>
-          <div class="attr-cell" data-stat="stats.Carl.dex" data-label="Carl – Dexterity"><span id="stat-Carl-dex">0</span></div>
-          <div class="attr-cell" data-stat="stats.Donut.dex" data-label="Donut – Dexterity"><span id="stat-Donut-dex">0</span></div>
-          <div class="attr-label">CHA</div>
-          <div class="attr-cell" data-stat="stats.Carl.cha" data-label="Carl – Charisma"><span id="stat-Carl-cha">0</span></div>
-          <div class="attr-cell" data-stat="stats.Donut.cha" data-label="Donut – Charisma"><span id="stat-Donut-cha">0</span></div>
+        <div class="two" style="padding:0 12px 14px">
+          <button class="secondary" id="openStatsBtn" type="button">📊 Attributter</button>
+          <button class="secondary" id="openRatingsBtn" type="button">📈 Ratings</button>
         </div>
 
         <div class="stats">
@@ -5072,6 +5077,33 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   </div>
 </dialog>
 
+<dialog id="statGroupDialog">
+  <div class="modal-head"><h3 id="statGroupTitle">Attributter</h3><button class="icon-btn" data-close="statGroupDialog">✕</button></div>
+  <div class="modal-body">
+    <div id="statGroupBody"></div>
+  </div>
+</dialog>
+
+<dialog id="slotDialog">
+  <div class="modal-head"><h3 id="slotDialogTitle">Slot</h3><button class="icon-btn" data-close="slotDialog">✕</button></div>
+  <div class="modal-body">
+    <div id="slotEquippedView" style="display:none">
+      <div class="field">
+        <label id="slotEquippedName" style="font-size:16px">–</label>
+        <small id="slotEquippedDesc" style="color:var(--muted);display:block;margin-top:2px"></small>
+      </div>
+      <div class="two" style="margin-top:14px">
+        <button class="secondary" id="slotSwapBtn" type="button">Bytt ut</button>
+        <button class="danger" id="slotUnequipBtn" type="button">Ta av</button>
+      </div>
+    </div>
+    <div id="slotPickerView">
+      <div id="slotItemList" class="form-grid"></div>
+      <button class="primary" id="slotNewItemBtn" type="button" style="margin-top:10px">+ Nytt item til denne sloten</button>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="cropDialog">
   <div class="modal-head"><h3>Beskjær bilde</h3><button class="icon-btn" id="cropCloseBtn" type="button">✕</button></div>
   <div class="modal-body" style="padding:0">
@@ -5103,21 +5135,37 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
         <select id="entryType">
           <option value="achievement">Achievement</option><option value="item">Item</option>
           <option value="skill">Skill</option><option value="quest">Quest</option>
-          <option value="level">Level Up</option><option value="stats">Attributter</option><option value="note">Notat</option>
+          <option value="level">Level Up</option><option value="stats">Attributter</option><option value="ratings">Ratings</option><option value="note">Notat</option>
         </select>
       </div>
       <div class="field"><label>Hvem gjelder det <small>– Carl, Donut eller begge</small></label>
         <select id="entryOwner"><option>Carl</option><option>Donut</option><option>Begge</option></select>
       </div>
       <div class="field"><label>Navn <small>– tittelen, f.eks. «Crazy Cat Lady»</small></label>
-        <textarea id="entryTitle" class="mini-area" rows="1" placeholder="Navn"></textarea>
+        <div class="mini-wrap">
+          <textarea id="entryTitle" class="mini-area" rows="1" placeholder="Navn"></textarea>
+          <button type="button" class="expand-btn" data-target="entryTitle">⤢</button>
+        </div>
       </div>
       <div class="field"><label>Beskrivelse <small>– full tekst fra boken</small></label>
         <textarea id="entryDescription" placeholder="Beskrivelse"></textarea>
       </div>
       <div class="two">
-        <div class="field"><label>Belønning <small>– valgfritt</small></label><textarea id="entryReward" class="mini-area" rows="1" placeholder="Belønning / effekt"></textarea></div>
-        <div class="field"><label>Sjeldenhet <small>– valgfritt</small></label><textarea id="entryRarity" class="mini-area" rows="1" placeholder="Sjeldenhet"></textarea></div>
+        <div class="field"><label>Belønning <small>– valgfritt</small></label>
+          <div class="mini-wrap">
+            <textarea id="entryReward" class="mini-area" rows="1" placeholder="Belønning / effekt"></textarea>
+            <button type="button" class="expand-btn" data-target="entryReward">⤢</button>
+          </div>
+        </div>
+        <div class="field"><label>Sjeldenhet <small>– valgfritt</small></label>
+          <div class="mini-wrap">
+            <textarea id="entryRarity" class="mini-area" rows="1" placeholder="Sjeldenhet"></textarea>
+            <button type="button" class="expand-btn" data-target="entryRarity">⤢</button>
+          </div>
+        </div>
+      </div>
+      <div class="field" id="entryQuantityField"><label>Antall <small>– for items du kan ha flere av</small></label>
+        <input id="entryQuantity" type="number" min="1" value="1" />
       </div>
       <div class="field"><label>Hvor i historien <small>– bok/kapittel der dette skjedde. Styrer når det dukker opp i lister (skjules til du har lest dit).</small></label>
         <div class="two"><input id="entryBook" type="number" min="1" placeholder="Bok" /><input id="entryChapter" type="number" min="1" placeholder="Kapittel" /></div>
@@ -5154,10 +5202,21 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     if(!state.stats[owner]) state.stats[owner]={str:0,int:0,con:0,dex:0,cha:0};
     for(const k of ['str','int','con','dex','cha']) if(typeof state.stats[owner][k]!=='number') state.stats[owner][k]=0;
   }
+  const SLOT_NAMES=['Hode','Skuldre','Bryst','Hender','Våpen','Hals','Rygg','Ben','Føtter','Tilbehør'];
+  if(!state.equipped) state.equipped={};
+  for(const s of SLOT_NAMES) if(!(s in state.equipped)) state.equipped[s]=null;
+  const SLOT_ICONS={Hode:'⛑️',Skuldre:'🧥',Bryst:'👕',Hender:'🧤',Våpen:'🗡️',Hals:'📿',Rygg:'🎒',Ben:'👖',Føtter:'👢',Tilbehør:'💍'};
+  const RARITY_COLORS={Common:'#9a9a9a',Uncommon:'#4caf50',Rare:'#3b82f6',Epic:'#a855f7',Legendary:'#f0c96d',Unique:'#ff6b6b'};
+  if(!state.ratings) state.ratings={Carl:{views:0,followers:0,favorites:0,patrons:0}, Donut:{views:0,followers:0,favorites:0,patrons:0}};
+  for(const owner of ['Carl','Donut']){
+    if(!state.ratings[owner]) state.ratings[owner]={views:0,followers:0,favorites:0,patrons:0};
+    for(const k of ['views','followers','favorites','patrons']) if(typeof state.ratings[owner][k]!=='number') state.ratings[owner][k]=0;
+  }
   function getByPath(obj,path){ return path.split('.').reduce((o,k)=>o&&o[k],obj); }
   function setByPath(obj,path,val){ const p=path.split('.'); let o=obj; for(let i=0;i<p.length-1;i++) o=o[p[i]]; o[p[p.length-1]]=val; }
   const $ = s => document.querySelector(s);
   const STAT_DEFS=[['strength','str','Strength'],['intelligence','int','Intelligence'],['constitution','con','Constitution'],['dexterity','dex','Dexterity'],['charisma','cha','Charisma']];
+  const RATING_DEFS=[['views','views','Views'],['followers','followers','Followers'],['favorites','favorites','Favorites'],['patrons','patrons','Patrons']];
   const $$ = s => [...document.querySelectorAll(s)];
 
   function persist(){ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -5166,14 +5225,21 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function visibleEntries(){
     return state.entries.filter(e => Number(e.book)<state.book || (Number(e.book)===state.book && Number(e.chapter)<=state.chapter));
   }
-  function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',level:'⬆️',stats:'📊',note:'📝'}[type] || '•'; }
-  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',level:'Level Up',stats:'Attributter',note:'Notat'}[type] || type; }
+  function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',level:'⬆️',stats:'📊',ratings:'📈',note:'📝'}[type] || '•'; }
+  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',level:'Level Up',stats:'Attributter',ratings:'Ratings',note:'Notat'}[type] || type; }
 
   function ownerIcon(owner){ return {Carl:'🧍',Donut:'🐱',Begge:'🧍🐱'}[owner] || '👤'; }
 
   function entryCard(e){
+    const qty=e.type==='item' ? (e.quantity||1) : null;
+    const qtyBadge = (qty!==null && qty!==1) ? ` ×${qty}` : '';
+    const qtyControls = e.type==='item' ? `
+      <button class="icon-btn qty-btn" data-id="${e.id}" data-delta="-1" style="padding:5px 9px">−</button>
+      <button class="icon-btn qty-btn" data-id="${e.id}" data-delta="1" style="padding:5px 9px">+</button>` : '';
     return `<article class="entry" data-id="${e.id}">
-      <div class="entry-top"><h4>${icon(e.type)} ${esc(e.title)}</h4><button class="icon-btn delete-entry" data-id="${e.id}" style="padding:5px 8px">🗑</button></div>
+      <div class="entry-top"><h4>${icon(e.type)} ${esc(e.title)}${qtyBadge}</h4>
+        <div style="display:flex;gap:4px;flex-shrink:0">${qtyControls}<button class="icon-btn delete-entry" data-id="${e.id}" style="padding:5px 8px">🗑</button></div>
+      </div>
       <p>${esc(e.description || '')}</p>
       <div class="meta"><span class="chip">${icon(e.type)} ${typeLabel(e.type)}</span><span class="chip">${ownerIcon(e.owner)} ${esc(e.owner)}</span>
       <span class="chip">📖 Bok ${e.book} · Kap. ${e.chapter}</span>${e.rarity?`<span class="chip">⭐ ${esc(e.rarity)}</span>`:''}
@@ -5184,12 +5250,6 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function render(){
     $('#bookSelect').value=state.book; $('#chapterInput').value=state.chapter; $('#levelValue').textContent=state.level; $('#levelInput').value=state.level;
     $('#dungeonLevelValue').textContent=state.dungeonLevel;
-    for(const owner of ['Carl','Donut']){
-      for(const k of ['str','int','con','dex','cha']){
-        const el=$(`#stat-${owner}-${k}`);
-        if(el) el.textContent=state.stats[owner][k];
-      }
-    }
     $('#currentPoint').textContent=`Bok ${state.book} · Kap. ${state.chapter}`;
     const visible = visibleEntries().sort((a,b)=>b.createdAt-a.createdAt);
     const ach = visible.filter(e=>e.type==='achievement');
@@ -5204,27 +5264,66 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     $('#timelineList').innerHTML=timeline.map(entryCard).join('') || `<div class="empty">Tidslinjen er tom.</div>`;
     $$('.delete-entry').forEach(btn=>btn.onclick=(ev)=>{
       ev.stopPropagation();
-      state.entries=state.entries.filter(e=>e.id!==btn.dataset.id);persist();render();toast('Slettet');
+      state.entries=state.entries.filter(e=>e.id!==btn.dataset.id);
+      for(const s of SLOT_NAMES) if(state.equipped[s]===btn.dataset.id) state.equipped[s]=null;
+      persist();render();toast('Slettet');
+    });
+    $$('.qty-btn').forEach(btn=>btn.onclick=(ev)=>{
+      ev.stopPropagation();
+      const id=btn.dataset.id, delta=Number(btn.dataset.delta);
+      const item=state.entries.find(e=>e.id===id);
+      if(!item) return;
+      item.quantity=(item.quantity||1)+delta;
+      if(item.quantity<=0){
+        state.entries=state.entries.filter(e=>e.id!==id);
+        for(const s of SLOT_NAMES) if(state.equipped[s]===id) state.equipped[s]=null;
+        toast('Brukt opp');
+      }
+      persist(); render();
     });
     $$('.entry').forEach(card=>card.onclick=()=>{
       const found=state.entries.find(e=>e.id===card.dataset.id);
       if(found) editEntry(found);
+    });
+    renderSlots();
+  }
+
+  function renderSlots(){
+    $$('.slot').forEach(btn=>{
+      const slot=btn.dataset.slot;
+      const id=state.equipped[slot];
+      const item=id ? state.entries.find(e=>e.id===id) : null;
+      if(item){
+        btn.classList.add('filled');
+        btn.innerHTML=`<span class="slot-icon">${SLOT_ICONS[slot]||'✦'}</span><span class="slot-name">${esc(item.title).slice(0,18)}</span>`;
+        const color=RARITY_COLORS[item.rarity]||'#c9a84a';
+        btn.style.borderColor=color;
+        btn.style.boxShadow=`0 0 10px ${color}55`;
+      } else {
+        btn.classList.remove('filled');
+        btn.textContent=slot;
+        btn.style.borderColor=''; btn.style.boxShadow='';
+      }
     });
   }
 
   let reviewQueue = [];
   let reviewIndex = 0;
   let editingId = null;
+  let currentSlot = null;
+  let pendingEquipSlot = null;
 
-  function autoGrow(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
-  $$('.mini-area').forEach(el=>el.addEventListener('input',()=>autoGrow(el)));
+  function updateQuantityFieldVisibility(){
+    $('#entryQuantityField').style.display = $('#entryType').value==='item' ? 'grid' : 'none';
+  }
 
   function openEntry(prefill={}){
     $('#entryType').value=prefill.type||'achievement'; $('#entryOwner').value=prefill.owner||'Carl';
     $('#entryTitle').value=prefill.title||''; $('#entryDescription').value=prefill.description||'';
     $('#entryReward').value=prefill.reward||''; $('#entryRarity').value=prefill.rarity||'';
+    $('#entryQuantity').value=prefill.quantity||1;
     $('#entryBook').value=prefill.book||state.book; $('#entryChapter').value=prefill.chapter||state.chapter;
-    $$('.mini-area').forEach(autoGrow);
+    updateQuantityFieldVisibility();
     const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry'), delBtn=$('#deleteEntryBtn'), heading=$('#entryDialogTitle');
     if(reviewQueue.length>1){
       info.textContent=`Oppføring ${reviewIndex+1} av ${reviewQueue.length}`;
@@ -5237,6 +5336,14 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const dlg=$('#entryDialog');
     if(!dlg.open) dlg.showModal();
   }
+  $('#entryType').onchange=updateQuantityFieldVisibility;
+
+  $$('.expand-btn').forEach(btn=>btn.onclick=()=>{
+    const el=$('#'+btn.dataset.target);
+    const isExpanded=el.classList.toggle('expanded');
+    el.rows = isExpanded ? 5 : 1;
+    btn.textContent = isExpanded ? '⤡' : '⤢';
+  });
 
   function editEntry(entry){
     reviewQueue=[]; reviewIndex=0;
@@ -5301,7 +5408,31 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     if(box && box.length) return box;
     const stats=splitStatsBlock(block);
     if(stats && stats.length) return stats;
+    const ratings=splitRatingsBlock(block);
+    if(ratings && ratings.length) return ratings;
     return null;
+  }
+
+  function splitRatingsBlock(text){
+    const perOwner={Carl:{},Donut:{}};
+    let anyFound=false;
+    for(const [full,key] of RATING_DEFS){
+      const re=new RegExp(full+'\\s*[:\\-]?\\s*(\\d[\\d,]{0,14})','gi');
+      const found=[...text.matchAll(re)];
+      if(found.length>=1){ perOwner.Carl[key]=parseInt(found[0][1].replace(/,/g,''),10); anyFound=true; }
+      if(found.length>=2){ perOwner.Donut[key]=parseInt(found[1][1].replace(/,/g,''),10); }
+    }
+    if(!anyFound) return null;
+    const labelMap={views:'Views',followers:'Followers',favorites:'Favorites',patrons:'Patrons'};
+    const entries=[];
+    for(const owner of ['Carl','Donut']){
+      const vals=perOwner[owner];
+      const keys=Object.keys(vals);
+      if(!keys.length) continue;
+      const desc=keys.map(k=>`${labelMap[k]} ${vals[k]}`).join(', ');
+      entries.push({type:'ratings', title:`Ratings – ${owner}`, description:desc, reward:'', rarity:'', owner, book:state.book, chapter:state.chapter});
+    }
+    return entries.length ? entries : null;
   }
 
   function splitStatsBlock(text){
@@ -5342,7 +5473,10 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
         const rr=new RegExp('^'+r+'\\b','i');
         if(rr.test(title)){ rarity=r[0].toUpperCase()+r.slice(1); title=title.replace(rr,'').trim(); break; }
       }
-      return {type:'item', title: title || 'Ukjent item', description:`Fra ${boxName}`, reward:'', rarity, owner:'Carl', book:state.book, chapter:state.chapter};
+      let quantity=1;
+      const qtyMatch=title.match(/\s*[x×]\s*(\d+)\s*$/i);
+      if(qtyMatch){ quantity=parseInt(qtyMatch[1],10); title=title.slice(0,qtyMatch.index).trim(); }
+      return {type:'item', title: title || 'Ukjent item', description:`Fra ${boxName}`, reward:'', rarity, quantity, owner:'Carl', book:state.book, chapter:state.chapter};
     });
   }
 
@@ -5389,7 +5523,12 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     for(const r of ['legendary','epic','rare','common','unique']){
       if(lower.includes(r)){ rarity=r[0].toUpperCase()+r.slice(1); break; }
     }
-    return {type,title,description:cleaned,reward,rarity,levelValue,owner:'Carl',book:state.book,chapter:state.chapter};
+    let quantity=1;
+    if(type==='item'){
+      const qtyMatch=title.match(/\s*[x×]\s*(\d+)\s*$/i);
+      if(qtyMatch){ quantity=parseInt(qtyMatch[1],10); title=title.slice(0,qtyMatch.index).trim(); }
+    }
+    return {type,title,description:cleaned,reward,rarity,levelValue,quantity,owner:'Carl',book:state.book,chapter:state.chapter};
   }
 
   $$('[data-nav]').forEach(btn=>btn.onclick=()=>{
@@ -5400,22 +5539,22 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   $('#settingsBtn').onclick=()=>$('#settingsDialog').showModal();
   $$('[data-close]').forEach(b=>b.onclick=()=>{
     document.getElementById(b.dataset.close).close();
-    if(b.dataset.close==='entryDialog'){ reviewQueue=[]; reviewIndex=0; editingId=null; }
+    if(b.dataset.close==='entryDialog'){ reviewQueue=[]; reviewIndex=0; editingId=null; pendingEquipSlot=null; }
   });
 
   $('#bookSelect').onchange=e=>{state.book=Number(e.target.value);persist();render();};
   $('#chapterInput').onchange=e=>{state.chapter=Math.max(1,Number(e.target.value)||1);persist();render();};
   $('#levelInput').onchange=e=>{state.level=Math.max(1,Number(e.target.value)||1);persist();render();};
 
-  $$('.level-pill,.attr-cell').forEach(pill=>pill.onclick=()=>{
-    const stat=pill.dataset.stat;
-    $('#statEditTitle').textContent=pill.dataset.label;
+  function openValueEditor(stat,label){
+    $('#statEditTitle').textContent=label;
     $('#statEditInput').value=getByPath(state,stat);
     $('#statEditInput').dataset.stat=stat;
     $('#statEditDialog').showModal();
     $('#statEditInput').focus();
     $('#statEditInput').select();
-  });
+  }
+  $$('.level-pill').forEach(pill=>pill.onclick=()=>openValueEditor(pill.dataset.stat,pill.dataset.label));
   $('#statEditSave').onclick=()=>{
     const stat=$('#statEditInput').dataset.stat;
     const isNested=stat.includes('.');
@@ -5423,7 +5562,59 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     setByPath(state,stat,val);
     persist(); render();
     $('#statEditDialog').close();
+    if($('#statGroupDialog').open) refreshStatGroup();
   };
+
+  const STAT_GROUPS={
+    stats:{title:'📊 Attributter', defs:STAT_DEFS, store:'stats'},
+    ratings:{title:'📈 Ratings', defs:RATING_DEFS, store:'ratings'}
+  };
+  let currentGroup=null;
+
+  function formatGroupVal(store,val){ return store==='ratings' ? (val||0).toLocaleString('nb-NO') : (val||0); }
+
+  function buildStatGroup(kind){
+    const g=STAT_GROUPS[kind];
+    $('#statGroupTitle').textContent=g.title;
+    $('#statGroupBody').innerHTML=g.defs.map(([full,key,label])=>`
+      <div class="stat-row">
+        <div class="stat-row-label">${label}</div>
+        <div class="stat-row-owner"><small>Carl</small>
+          <div class="stepper">
+            <button type="button" class="stepper-btn qty-step" data-store="${g.store}" data-owner="Carl" data-key="${key}" data-delta="-1">−</button>
+            <span class="stepper-val" data-store="${g.store}" data-owner="Carl" data-key="${key}" data-label="Carl – ${label}">0</span>
+            <button type="button" class="stepper-btn qty-step" data-store="${g.store}" data-owner="Carl" data-key="${key}" data-delta="1">+</button>
+          </div>
+        </div>
+        <div class="stat-row-owner"><small>🐱 Donut</small>
+          <div class="stepper">
+            <button type="button" class="stepper-btn qty-step" data-store="${g.store}" data-owner="Donut" data-key="${key}" data-delta="-1">−</button>
+            <span class="stepper-val" data-store="${g.store}" data-owner="Donut" data-key="${key}" data-label="Donut – ${label}">0</span>
+            <button type="button" class="stepper-btn qty-step" data-store="${g.store}" data-owner="Donut" data-key="${key}" data-delta="1">+</button>
+          </div>
+        </div>
+      </div>`).join('');
+    refreshStatGroup();
+    $$('#statGroupBody .qty-step').forEach(btn=>btn.onclick=()=>{
+      const {store,owner,key,delta}=btn.dataset;
+      state[store][owner][key]=Math.max(0,(state[store][owner][key]||0)+Number(delta));
+      persist(); render(); refreshStatGroup();
+    });
+    $$('#statGroupBody .stepper-val').forEach(span=>span.onclick=()=>{
+      openValueEditor(`${span.dataset.store}.${span.dataset.owner}.${span.dataset.key}`, span.dataset.label);
+    });
+  }
+
+  function refreshStatGroup(){
+    if(!currentGroup) return;
+    const g=STAT_GROUPS[currentGroup];
+    $$('#statGroupBody .stepper-val').forEach(span=>{
+      span.textContent=formatGroupVal(g.store, state[g.store][span.dataset.owner][span.dataset.key]);
+    });
+  }
+
+  $('#openStatsBtn').onclick=()=>{ currentGroup='stats'; buildStatGroup('stats'); $('#statGroupDialog').showModal(); };
+  $('#openRatingsBtn').onclick=()=>{ currentGroup='ratings'; buildStatGroup('ratings'); $('#statGroupDialog').showModal(); };
 
   function applyLevelIfNeeded(fields){
     if(fields.type!=='level') return;
@@ -5443,29 +5634,58 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     return any;
   }
 
+  function applyRatingsIfNeeded(fields){
+    if(fields.type!=='ratings') return;
+    const owner = fields.owner==='Donut' ? 'Donut' : 'Carl';
+    const src = `${fields.title} ${fields.description}`;
+    let any=false;
+    for(const [full,key] of RATING_DEFS){
+      const m=src.match(new RegExp(full+'\\s*[:\\-]?\\s*(\\d[\\d,]{0,14})','i'));
+      if(m){ state.ratings[owner][key]=parseInt(m[1].replace(/,/g,''),10); any=true; }
+    }
+    return any;
+  }
+
   $('#saveEntry').onclick=()=>{
     const fields={
       type:$('#entryType').value, owner:$('#entryOwner').value,
       title:$('#entryTitle').value.trim()||'Uten navn',
       description:$('#entryDescription').value.trim(),
       reward:$('#entryReward').value.trim(), rarity:$('#entryRarity').value.trim(),
+      quantity:Math.max(1,Number($('#entryQuantity').value)||1),
       book:Number($('#entryBook').value)||state.book, chapter:Number($('#entryChapter').value)||state.chapter
     };
     applyLevelIfNeeded(fields);
     const statsApplied=applyStatsIfNeeded(fields);
+    const ratingsApplied=applyRatingsIfNeeded(fields);
     if(editingId){
       const idx=state.entries.findIndex(e=>e.id===editingId);
       if(idx>-1) state.entries[idx]={...state.entries[idx], ...fields};
       editingId=null; persist(); render(); $('#entryDialog').close(); toast('Oppdatert');
       return;
     }
+    if(fields.type==='item'){
+      const match=state.entries.find(e=>e.type==='item' && e.owner===fields.owner && e.title.trim().toLowerCase()===fields.title.trim().toLowerCase());
+      if(match){
+        match.quantity=(match.quantity||1)+fields.quantity;
+        persist(); render();
+        if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
+          reviewIndex++; toast(`Slått sammen – nå ${match.quantity} stk`); showQueueEntry();
+        } else {
+          reviewQueue=[]; reviewIndex=0; $('#entryDialog').close();
+          toast(`Slått sammen – nå ${match.quantity} stk`);
+        }
+        return;
+      }
+    }
     const entry={ id:crypto.randomUUID?crypto.randomUUID():String(Date.now()), ...fields, createdAt:Date.now() };
     state.entries.push(entry); persist(); render();
+    if(pendingEquipSlot){ state.equipped[pendingEquipSlot]=entry.id; pendingEquipSlot=null; persist(); render(); }
     if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
       reviewIndex++; toast('Lagret – neste oppføring'); showQueueEntry();
     } else {
       reviewQueue=[]; reviewIndex=0; $('#entryDialog').close();
-      toast(fields.type==='level' ? `Lagret – nivå ${state.level}` : (statsApplied ? `Lagret – attributter oppdatert` : 'Lagret'));
+      toast(fields.type==='level' ? `Lagret – nivå ${state.level}` : (statsApplied ? `Lagret – attributter oppdatert` : (ratingsApplied ? `Lagret – ratings oppdatert` : 'Lagret')));
     }
   };
 
@@ -5654,7 +5874,53 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     }
   };
 
-  $$('.slot').forEach(b=>b.onclick=()=>{ editingId=null; openEntry({type:'item',title:b.dataset.slot,description:`Utstyr for slot: ${b.dataset.slot}`}); });
+  function itemPickerRow(entry){
+    return `<button type="button" class="secondary slot-pick-row" data-id="${entry.id}" style="text-align:left">
+      ${icon('item')} ${esc(entry.title)}${entry.rarity?` <span style="color:var(--muted)">· ${esc(entry.rarity)}</span>`:''}
+    </button>`;
+  }
+
+  function openSlotDialog(slot){
+    currentSlot=slot;
+    $('#slotDialogTitle').textContent=`${SLOT_ICONS[slot]||''} ${slot}`;
+    const equippedId=state.equipped[slot];
+    const equippedItem=equippedId ? state.entries.find(e=>e.id===equippedId) : null;
+    if(equippedItem){
+      $('#slotEquippedView').style.display='block';
+      $('#slotPickerView').style.display='none';
+      $('#slotEquippedName').textContent=equippedItem.title;
+      $('#slotEquippedDesc').textContent=equippedItem.description||'';
+    } else {
+      $('#slotEquippedView').style.display='none';
+      $('#slotPickerView').style.display='block';
+      const availableItems=visibleEntries().filter(e=>e.type==='item');
+      $('#slotItemList').innerHTML=availableItems.length
+        ? availableItems.map(itemPickerRow).join('')
+        : `<div class="empty">Ingen items registrert ennå.</div>`;
+      $$('.slot-pick-row').forEach(btn=>btn.onclick=()=>{
+        state.equipped[slot]=btn.dataset.id; persist(); render();
+        $('#slotDialog').close();
+      });
+    }
+    $('#slotDialog').showModal();
+  }
+
+  $$('.slot').forEach(b=>b.onclick=()=>openSlotDialog(b.dataset.slot));
+
+  $('#slotSwapBtn').onclick=()=>{
+    state.equipped[currentSlot]=null;
+    openSlotDialog(currentSlot);
+  };
+  $('#slotUnequipBtn').onclick=()=>{
+    state.equipped[currentSlot]=null; persist(); render();
+    $('#slotDialog').close();
+  };
+  $('#slotNewItemBtn').onclick=()=>{
+    pendingEquipSlot=currentSlot;
+    editingId=null;
+    $('#slotDialog').close();
+    openEntry({type:'item',title:'',description:`Utstyr for slot: ${currentSlot}`});
+  };
   render();
 })();
 </script>

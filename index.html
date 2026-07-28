@@ -3688,6 +3688,7 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .modal-head h3{margin:0;letter-spacing:.3px}.modal-body{padding:14px 16px;max-height:76vh;overflow:auto}
     .form-grid{display:grid;gap:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
     .field{display:grid;gap:5px}
+    .mini-area{resize:none;min-height:44px;overflow:hidden;line-height:1.35;font-family:inherit}
     .field label{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.2px}
     .field label small{font-weight:400;color:var(--muted);font-size:11px;display:block;margin-top:1px}
     .primary{border:1px solid #9f7c3c;background:linear-gradient(145deg,#f0c96d,#b17d2f);color:#201507;
@@ -3730,7 +3731,10 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
       <article class="hero-card">
         <div class="hero-head">
           <div><h2>Carl</h2><p>Dungeon crawler · personlig oversikt</p></div>
-          <div class="level-pill">Lvl <span id="levelValue">1</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+            <div class="level-pill">Lvl <span id="levelValue">1</span></div>
+            <div class="level-pill" id="dungeonLevelPill" title="Hvilket nivå i World Dungeon Carl er på">🕳️ Nivå <span id="dungeonLevelValue">1</span></div>
+          </div>
         </div>
 
         <div class="inspect">
@@ -4962,8 +4966,10 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
           </div>
         </div>
 
-        <div class="meter"><div class="meter-row"><span>HP</span><span>82%</span></div><div class="bar"><div class="fill hp"></div></div></div>
-        <div class="meter"><div class="meter-row"><span>Progresjon</span><span>63%</span></div><div class="bar"><div class="fill xp"></div></div></div>
+        <div class="field" style="padding:0 12px 14px">
+          <label>Dungeon-nivå <small>– hvilken etasje i World Dungeon Carl er på nå</small></label>
+          <input id="dungeonLevelInput" type="number" min="1" value="1" />
+        </div>
 
         <div class="stats">
           <div class="stat"><b id="achievementCount">0</b><span>Achievements</span></div>
@@ -5064,21 +5070,22 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       <div class="field"><label>Type <small>– hva slags hendelse er dette?</small></label>
         <select id="entryType">
           <option value="achievement">Achievement</option><option value="item">Item</option>
-          <option value="skill">Skill</option><option value="quest">Quest</option><option value="note">Notat</option>
+          <option value="skill">Skill</option><option value="quest">Quest</option>
+          <option value="level">Level Up</option><option value="note">Notat</option>
         </select>
       </div>
       <div class="field"><label>Hvem gjelder det <small>– Carl, Donut eller begge</small></label>
         <select id="entryOwner"><option>Carl</option><option>Donut</option><option>Begge</option></select>
       </div>
       <div class="field"><label>Navn <small>– tittelen, f.eks. «Crazy Cat Lady»</small></label>
-        <input id="entryTitle" placeholder="Navn" />
+        <textarea id="entryTitle" class="mini-area" rows="1" placeholder="Navn"></textarea>
       </div>
       <div class="field"><label>Beskrivelse <small>– full tekst fra boken</small></label>
         <textarea id="entryDescription" placeholder="Beskrivelse"></textarea>
       </div>
       <div class="two">
-        <div class="field"><label>Belønning <small>– valgfritt</small></label><input id="entryReward" placeholder="Belønning / effekt" /></div>
-        <div class="field"><label>Sjeldenhet <small>– valgfritt</small></label><input id="entryRarity" placeholder="Sjeldenhet" /></div>
+        <div class="field"><label>Belønning <small>– valgfritt</small></label><textarea id="entryReward" class="mini-area" rows="1" placeholder="Belønning / effekt"></textarea></div>
+        <div class="field"><label>Sjeldenhet <small>– valgfritt</small></label><textarea id="entryRarity" class="mini-area" rows="1" placeholder="Sjeldenhet"></textarea></div>
       </div>
       <div class="field"><label>Hvor i historien <small>– bok/kapittel der dette skjedde. Styrer når det dukker opp i lister (skjules til du har lest dit).</small></label>
         <div class="two"><input id="entryBook" type="number" min="1" placeholder="Bok" /><input id="entryChapter" type="number" min="1" placeholder="Kapittel" /></div>
@@ -5109,6 +5116,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 (() => {
   const KEY = 'dcc-local-v1';
   const state = JSON.parse(localStorage.getItem(KEY) || '{"entries":[],"book":1,"chapter":1,"level":1}');
+  if(typeof state.dungeonLevel !== 'number') state.dungeonLevel = 1;
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
 
@@ -5118,8 +5126,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function visibleEntries(){
     return state.entries.filter(e => Number(e.book)<state.book || (Number(e.book)===state.book && Number(e.chapter)<=state.chapter));
   }
-  function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',note:'📝'}[type] || '•'; }
-  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',note:'Notat'}[type] || type; }
+  function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',level:'⬆️',note:'📝'}[type] || '•'; }
+  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',level:'Level Up',note:'Notat'}[type] || type; }
 
   function ownerIcon(owner){ return {Carl:'🧍',Donut:'🐱',Begge:'🧍🐱'}[owner] || '👤'; }
 
@@ -5135,6 +5143,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   function render(){
     $('#bookSelect').value=state.book; $('#chapterInput').value=state.chapter; $('#levelValue').textContent=state.level; $('#levelInput').value=state.level;
+    $('#dungeonLevelValue').textContent=state.dungeonLevel; $('#dungeonLevelInput').value=state.dungeonLevel;
     $('#currentPoint').textContent=`Bok ${state.book} · Kap. ${state.chapter}`;
     const visible = visibleEntries().sort((a,b)=>b.createdAt-a.createdAt);
     const ach = visible.filter(e=>e.type==='achievement');
@@ -5161,11 +5170,15 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   let reviewIndex = 0;
   let editingId = null;
 
+  function autoGrow(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+  $$('.mini-area').forEach(el=>el.addEventListener('input',()=>autoGrow(el)));
+
   function openEntry(prefill={}){
     $('#entryType').value=prefill.type||'achievement'; $('#entryOwner').value=prefill.owner||'Carl';
     $('#entryTitle').value=prefill.title||''; $('#entryDescription').value=prefill.description||'';
     $('#entryReward').value=prefill.reward||''; $('#entryRarity').value=prefill.rarity||'';
     $('#entryBook').value=prefill.book||state.book; $('#entryChapter').value=prefill.chapter||state.chapter;
+    $$('.mini-area').forEach(autoGrow);
     const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry'), delBtn=$('#deleteEntryBtn'), heading=$('#entryDialogTitle');
     if(reviewQueue.length>1){
       info.textContent=`Oppføring ${reviewIndex+1} av ${reviewQueue.length}`;
@@ -5204,37 +5217,72 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const markerSource=[
       'new\\s+ach[il1]?[e3]?v[e3]?m[e3]?nt!?','ach[il1]?[e3]?v[e3]?m[e3]?nt\\s+unl\\w*ck\\w*!?',
       'congrat\\w*[^.!?]{0,60}?ach[il1]?[e3]?v[e3]?m[e3]?nt','earned[^.!?]{0,40}?ach[il1]?[e3]?v[e3]?m[e3]?nt',
-      'new\\s+sk\\w*ll!?','new\\s+qu\\w*st!?',
+      'new\\s+sk\\w*ll!?','new\\s+qu\\w*st!?','l[e3]v[e3]l\\s*up!?',
       'you\\s+have\\s+rece\\w*ved!?','new\\s+t\\w*tle!?','new\\s+[il1]tem!?','qu\\w*st\\s*(?:complete|updated|failed)!?'
     ].join('|');
     const re=new RegExp(markerSource,'gi');
     const matches=[...cleaned.matchAll(re)];
-    if(matches.length<=1) return [parseText(cleaned)];
-    const blocks=[];
+
+    if(matches.length===0){
+      const boxItems=splitBoxContents(cleaned);
+      return (boxItems && boxItems.length) ? boxItems : [parseText(cleaned)];
+    }
+
+    const blocks=[], isLead=[];
     if(matches[0].index>0){
       const lead=cleaned.slice(0,matches[0].index).trim();
-      if(lead) blocks.push(lead);
+      if(lead){ blocks.push(lead); isLead.push(true); }
     }
     for(let i=0;i<matches.length;i++){
       const start=matches[i].index;
       const end = i+1<matches.length ? matches[i+1].index : cleaned.length;
       const block=cleaned.slice(start,end).trim();
-      if(block) blocks.push(block);
+      if(block){ blocks.push(block); isLead.push(false); }
     }
-    return blocks.length ? blocks.map(parseText) : [parseText(cleaned)];
+    const expanded=[];
+    blocks.forEach((block,i)=>{
+      if(isLead[i]){
+        const boxItems=splitBoxContents(block);
+        if(boxItems && boxItems.length){ expanded.push(...boxItems); return; }
+      }
+      expanded.push(parseText(block));
+    });
+    return expanded.length ? expanded : [parseText(cleaned)];
+  }
+
+  function splitBoxContents(block){
+    const boxHeaderRe=/([A-Za-z][\w'-]*(?:\s+[A-Za-z][\w'-]*){0,3}\s+Box)\.?\s*(?:[\[(]\s*(\d+)\s*\/\s*(\d+)\s*[\])])?\s*/i;
+    const m=block.match(boxHeaderRe);
+    if(!m) return null;
+    const boxName=m[1].trim();
+    const rest=block.slice(m.index+m[0].length);
+    const parts=rest.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(Boolean);
+    if(!parts.length) return null;
+    const rarityWords=['legendary','epic','rare','uncommon','common','unique'];
+    return parts.map(p=>{
+      let title=p.replace(/[.!?]+$/,'').trim();
+      let rarity='';
+      for(const r of rarityWords){
+        const rr=new RegExp('^'+r+'\\b','i');
+        if(rr.test(title)){ rarity=r[0].toUpperCase()+r.slice(1); title=title.replace(rr,'').trim(); break; }
+      }
+      return {type:'item', title: title || 'Ukjent item', description:`Fra ${boxName}`, reward:'', rarity, owner:'Carl', book:state.book, chapter:state.chapter};
+    });
   }
 
   function parseText(text){
     const cleaned=text.replace(/\s+/g,' ').trim();
     const lower=cleaned.toLowerCase();
     let type='note';
-    if(/ach[il1]?[e3]?v[e3]?m[e3]?nt/.test(lower)) type='achievement';
+    if(/l[e3]v[e3]l\s*up/.test(lower)) type='level';
+    else if(/ach[il1]?[e3]?v[e3]?m[e3]?nt/.test(lower)) type='achievement';
     else if(/new\s+sk\w*ll/.test(lower) || /sk\w*ll/.test(lower)) type='skill';
     else if(/qu\w*st/.test(lower)) type='quest';
     else if(/[il1]tem/.test(lower) || /you\s+have\s+rece\w*ved/.test(lower) || /obta\w*ned/.test(lower)) type='item';
 
     let title='';
     const patterns=[
+      /l[e3]v[e3]l\s*up!?\s*[:\-]?\s*([^.!?]{0,80})/i,
       /new\s+ach[il1]?[e3]?v[e3]?m[e3]?nt!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /ach[il1]?[e3]?v[e3]?m[e3]?nt\s+unl\w*ck\w*!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /earned[^.!?]{0,40}?ach[il1]?[e3]?v[e3]?m[e3]?nt!?\s*[:\-]?\s*([^.!?]{3,80})/i,
@@ -5243,6 +5291,13 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       /you\s+have\s+rece\w*ved!?\s*[:\-]?\s*([^.!?]{3,80})/i
     ];
     for(const p of patterns){ const m=cleaned.match(p); if(m){title=m[1].trim();break;} }
+
+    let levelValue=null;
+    if(type==='level'){
+      const lvlMatch=cleaned.match(/level\s*(?:up)?\D{0,20}?(\d{1,3})/i) || cleaned.match(/(\d{1,3})\D{0,10}level/i);
+      if(lvlMatch) levelValue=parseInt(lvlMatch[1],10);
+      title = levelValue ? `Level ${levelValue}` : (title || 'Level Up');
+    }
     if(!title) title=cleaned.split(/[.!?]/)[0].slice(0,70) || 'Ny oppføring';
 
     let reward='';
@@ -5258,7 +5313,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     for(const r of ['legendary','epic','rare','common','unique']){
       if(lower.includes(r)){ rarity=r[0].toUpperCase()+r.slice(1); break; }
     }
-    return {type,title,description:cleaned,reward,rarity,owner:'Carl',book:state.book,chapter:state.chapter};
+    return {type,title,description:cleaned,reward,rarity,levelValue,owner:'Carl',book:state.book,chapter:state.chapter};
   }
 
   $$('[data-nav]').forEach(btn=>btn.onclick=()=>{
@@ -5275,6 +5330,13 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   $('#bookSelect').onchange=e=>{state.book=Number(e.target.value);persist();render();};
   $('#chapterInput').onchange=e=>{state.chapter=Math.max(1,Number(e.target.value)||1);persist();render();};
   $('#levelInput').onchange=e=>{state.level=Math.max(1,Number(e.target.value)||1);persist();render();};
+  $('#dungeonLevelInput').onchange=e=>{state.dungeonLevel=Math.max(1,Number(e.target.value)||1);persist();render();};
+
+  function applyLevelIfNeeded(fields){
+    if(fields.type!=='level') return;
+    const m=fields.title.match(/(\d{1,3})/);
+    if(m){ state.level=parseInt(m[1],10); }
+  }
 
   $('#saveEntry').onclick=()=>{
     const fields={
@@ -5284,6 +5346,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       reward:$('#entryReward').value.trim(), rarity:$('#entryRarity').value.trim(),
       book:Number($('#entryBook').value)||state.book, chapter:Number($('#entryChapter').value)||state.chapter
     };
+    applyLevelIfNeeded(fields);
     if(editingId){
       const idx=state.entries.findIndex(e=>e.id===editingId);
       if(idx>-1) state.entries[idx]={...state.entries[idx], ...fields};
@@ -5295,7 +5358,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
       reviewIndex++; toast('Lagret – neste oppføring'); showQueueEntry();
     } else {
-      reviewQueue=[]; reviewIndex=0; $('#entryDialog').close(); toast('Lagret');
+      reviewQueue=[]; reviewIndex=0; $('#entryDialog').close();
+      toast(fields.type==='level' ? `Lagret – nivå ${state.level}` : 'Lagret');
     }
   };
 

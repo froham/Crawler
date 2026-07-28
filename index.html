@@ -3630,11 +3630,12 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .slots{display:grid;gap:8px}
     .slot{aspect-ratio:1;border:1px solid #5d4b70;border-radius:12px;background:linear-gradient(145deg,#241a31,#100d15);
       display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:var(--muted);text-align:center;padding:4px;gap:2px;
-      transition:border-color .15s,box-shadow .15s;line-height:1.2}
+      transition:border-color .15s,box-shadow .15s;line-height:1.2;overflow:hidden}
     .slot:active{border-color:var(--gold-dim);box-shadow:0 0 12px rgba(240,201,109,.15)}
     .slot.filled{color:var(--text);font-weight:700}
-    .slot .slot-icon{font-size:18px}
-    .slot .slot-name{font-size:10px;font-weight:700;word-break:break-word;max-width:100%}
+    .slot .slot-icon{font-size:16px;flex-shrink:0}
+    .slot .slot-name{font-size:9px;font-weight:700;line-height:1.15;max-width:100%;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
     .character-stage{position:relative;min-height:360px;border:1px solid #3e3150;border-radius:18px;
       background:radial-gradient(circle at 50% 25%,#4e2b58 0,#25172f 32%,#100d16 78%);
       overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
@@ -5090,7 +5091,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     <div id="slotEquippedView" style="display:none">
       <div class="field">
         <label id="slotEquippedName" style="font-size:16px">–</label>
-        <small id="slotEquippedDesc" style="color:var(--muted);display:block;margin-top:2px"></small>
+        <div id="slotEquippedBonus" style="display:none;color:var(--gold);font-weight:800;font-size:16px;margin-top:4px"></div>
+        <small id="slotEquippedDesc" style="color:var(--muted);display:block;margin-top:6px"></small>
       </div>
       <div class="two" style="margin-top:14px">
         <button class="secondary" id="slotSwapBtn" type="button">Bytt ut</button>
@@ -5217,6 +5219,24 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   const $ = s => document.querySelector(s);
   const STAT_DEFS=[['strength','str','Strength'],['intelligence','int','Intelligence'],['constitution','con','Constitution'],['dexterity','dex','Dexterity'],['charisma','cha','Charisma']];
   const RATING_DEFS=[['views','views','Views'],['followers','followers','Followers'],['favorites','favorites','Favorites'],['patrons','patrons','Patrons']];
+  const STAT_ALIAS={strength:'str',str:'str',intelligence:'int',int:'int',constitution:'con',con:'con',dexterity:'dex',dex:'dex',charisma:'cha',cha:'cha'};
+  const STAT_LABELS={str:'Strength',int:'Intelligence',con:'Constitution',dex:'Dexterity',cha:'Charisma'};
+  function extractStatBonus(text){
+    const m=(text||'').match(/\+\s*(\d{1,3})\s*(?:to\s+)?(strength|str|intelligence|int|constitution|con|dexterity|dex|charisma|cha)\b/i);
+    if(!m) return null;
+    const key=STAT_ALIAS[m[2].toLowerCase()];
+    return {key, label:STAT_LABELS[key], amount:parseInt(m[1],10)};
+  }
+  function equippedStatBonus(key){
+    let total=0;
+    for(const slot of SLOT_NAMES){
+      const id=state.equipped[slot];
+      if(!id) continue;
+      const item=state.entries.find(e=>e.id===id);
+      if(item && item.statBonus && item.statBonus.key===key) total+=item.statBonus.amount;
+    }
+    return total;
+  }
   const $$ = s => [...document.querySelectorAll(s)];
 
   function persist(){ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -5609,7 +5629,13 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     if(!currentGroup) return;
     const g=STAT_GROUPS[currentGroup];
     $$('#statGroupBody .stepper-val').forEach(span=>{
-      span.textContent=formatGroupVal(g.store, state[g.store][span.dataset.owner][span.dataset.key]);
+      const owner=span.dataset.owner, key=span.dataset.key;
+      let text=formatGroupVal(g.store, state[g.store][owner][key]);
+      if(g.store==='stats' && owner==='Carl'){
+        const bonus=equippedStatBonus(key);
+        if(bonus>0) text+=` (+${bonus})`;
+      }
+      span.textContent=text;
     });
   }
 
@@ -5658,6 +5684,9 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     applyLevelIfNeeded(fields);
     const statsApplied=applyStatsIfNeeded(fields);
     const ratingsApplied=applyRatingsIfNeeded(fields);
+    if(fields.type==='item'){
+      fields.statBonus=extractStatBonus(`${fields.title} ${fields.description}`);
+    }
     if(editingId){
       const idx=state.entries.findIndex(e=>e.id===editingId);
       if(idx>-1) state.entries[idx]={...state.entries[idx], ...fields};
@@ -5668,6 +5697,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       const match=state.entries.find(e=>e.type==='item' && e.owner===fields.owner && e.title.trim().toLowerCase()===fields.title.trim().toLowerCase());
       if(match){
         match.quantity=(match.quantity||1)+fields.quantity;
+        if(fields.statBonus) match.statBonus=fields.statBonus;
         persist(); render();
         if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
           reviewIndex++; toast(`Slått sammen – nå ${match.quantity} stk`); showQueueEntry();
@@ -5889,6 +5919,13 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       $('#slotEquippedView').style.display='block';
       $('#slotPickerView').style.display='none';
       $('#slotEquippedName').textContent=equippedItem.title;
+      const bonusEl=$('#slotEquippedBonus');
+      if(equippedItem.statBonus){
+        bonusEl.style.display='block';
+        bonusEl.textContent=`+${equippedItem.statBonus.amount} ${equippedItem.statBonus.label}`;
+      } else {
+        bonusEl.style.display='none';
+      }
       $('#slotEquippedDesc').textContent=equippedItem.description||'';
     } else {
       $('#slotEquippedView').style.display='none';

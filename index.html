@@ -3623,7 +3623,9 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .hero-head{display:flex;justify-content:space-between;align-items:flex-start;padding:16px 16px 4px}
     .hero-head h2{margin:0;font-size:24px;letter-spacing:.3px}.hero-head p{margin:3px 0 0;color:var(--muted);font-size:13px}
     .level-pill{border:1px solid #6b5430;background:#281f11;color:var(--gold);padding:8px 10px;border-radius:999px;font-weight:700;
+      cursor:pointer;transition:transform .15s,box-shadow .15s;
       box-shadow:0 0 14px rgba(240,201,109,.18)}
+    .level-pill:active{transform:scale(.95)}
     .inspect{display:grid;grid-template-columns:58px 1fr 58px;gap:8px;align-items:center;padding:12px}
     .slots{display:grid;gap:8px}
     .slot{aspect-ratio:1;border:1px solid #5d4b70;border-radius:12px;background:linear-gradient(145deg,#241a31,#100d15);
@@ -3643,6 +3645,12 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .name-tag{position:absolute;left:10px;bottom:10px;font-size:11px;color:var(--muted);z-index:2;
       background:rgba(13,11,18,.55);padding:3px 8px;border-radius:999px;backdrop-filter:blur(4px)}
     .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px 12px}
+    .attr-grid{display:grid;grid-template-columns:44px 1fr 1fr;gap:6px;padding:2px 12px 14px;align-items:center}
+    .attr-head{font-size:11px;color:var(--muted);text-align:center;font-weight:700}
+    .attr-label{font-size:11px;color:var(--muted);font-weight:700}
+    .attr-cell{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:7px 4px;
+      text-align:center;font-weight:800;font-size:15px;cursor:pointer;transition:border-color .15s,transform .15s}
+    .attr-cell:active{border-color:var(--gold-dim);transform:scale(.95)}
     .stat{border:1px solid var(--line);border-radius:13px;padding:10px;background:rgba(255,255,255,.03);transition:border-color .15s}
     .stat:active{border-color:var(--gold-dim)}
     .stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--muted)}
@@ -3732,8 +3740,8 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
         <div class="hero-head">
           <div><h2>Carl</h2><p>Dungeon crawler · personlig oversikt</p></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-            <div class="level-pill">Lvl <span id="levelValue">1</span></div>
-            <div class="level-pill" id="dungeonLevelPill" title="Hvilket nivå i World Dungeon Carl er på">🕳️ Nivå <span id="dungeonLevelValue">1</span></div>
+            <div class="level-pill" id="levelPill" data-stat="level" data-label="Nivå (Lvl)">Lvl <span id="levelValue">1</span></div>
+            <div class="level-pill" id="dungeonLevelPill" data-stat="dungeonLevel" data-label="Dungeon-nivå">🕳️ Nivå <span id="dungeonLevelValue">1</span></div>
           </div>
         </div>
 
@@ -4966,9 +4974,23 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
           </div>
         </div>
 
-        <div class="field" style="padding:0 12px 14px">
-          <label>Dungeon-nivå <small>– hvilken etasje i World Dungeon Carl er på nå</small></label>
-          <input id="dungeonLevelInput" type="number" min="1" value="1" />
+        <div class="attr-grid">
+          <div class="attr-head"></div><div class="attr-head">Carl</div><div class="attr-head">🐱 Donut</div>
+          <div class="attr-label">STR</div>
+          <div class="attr-cell" data-stat="stats.Carl.str" data-label="Carl – Strength"><span id="stat-Carl-str">0</span></div>
+          <div class="attr-cell" data-stat="stats.Donut.str" data-label="Donut – Strength"><span id="stat-Donut-str">0</span></div>
+          <div class="attr-label">INT</div>
+          <div class="attr-cell" data-stat="stats.Carl.int" data-label="Carl – Intelligence"><span id="stat-Carl-int">0</span></div>
+          <div class="attr-cell" data-stat="stats.Donut.int" data-label="Donut – Intelligence"><span id="stat-Donut-int">0</span></div>
+          <div class="attr-label">CON</div>
+          <div class="attr-cell" data-stat="stats.Carl.con" data-label="Carl – Constitution"><span id="stat-Carl-con">0</span></div>
+          <div class="attr-cell" data-stat="stats.Donut.con" data-label="Donut – Constitution"><span id="stat-Donut-con">0</span></div>
+          <div class="attr-label">DEX</div>
+          <div class="attr-cell" data-stat="stats.Carl.dex" data-label="Carl – Dexterity"><span id="stat-Carl-dex">0</span></div>
+          <div class="attr-cell" data-stat="stats.Donut.dex" data-label="Donut – Dexterity"><span id="stat-Donut-dex">0</span></div>
+          <div class="attr-label">CHA</div>
+          <div class="attr-cell" data-stat="stats.Carl.cha" data-label="Carl – Charisma"><span id="stat-Carl-cha">0</span></div>
+          <div class="attr-cell" data-stat="stats.Donut.cha" data-label="Donut – Charisma"><span id="stat-Donut-cha">0</span></div>
         </div>
 
         <div class="stats">
@@ -5040,6 +5062,16 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   </div>
 </dialog>
 
+<dialog id="statEditDialog">
+  <div class="modal-head"><h3 id="statEditTitle">Nivå</h3><button class="icon-btn" data-close="statEditDialog">✕</button></div>
+  <div class="modal-body">
+    <div class="form-grid">
+      <input id="statEditInput" type="number" min="1" inputmode="numeric" style="font-size:22px;text-align:center;font-weight:800" />
+      <button class="primary" id="statEditSave">Lagre</button>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="cropDialog">
   <div class="modal-head"><h3>Beskjær bilde</h3><button class="icon-btn" id="cropCloseBtn" type="button">✕</button></div>
   <div class="modal-body" style="padding:0">
@@ -5071,7 +5103,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
         <select id="entryType">
           <option value="achievement">Achievement</option><option value="item">Item</option>
           <option value="skill">Skill</option><option value="quest">Quest</option>
-          <option value="level">Level Up</option><option value="note">Notat</option>
+          <option value="level">Level Up</option><option value="stats">Attributter</option><option value="note">Notat</option>
         </select>
       </div>
       <div class="field"><label>Hvem gjelder det <small>– Carl, Donut eller begge</small></label>
@@ -5117,7 +5149,15 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   const KEY = 'dcc-local-v1';
   const state = JSON.parse(localStorage.getItem(KEY) || '{"entries":[],"book":1,"chapter":1,"level":1}');
   if(typeof state.dungeonLevel !== 'number') state.dungeonLevel = 1;
+  if(!state.stats) state.stats = {Carl:{str:0,int:0,con:0,dex:0,cha:0}, Donut:{str:0,int:0,con:0,dex:0,cha:0}};
+  for(const owner of ['Carl','Donut']){
+    if(!state.stats[owner]) state.stats[owner]={str:0,int:0,con:0,dex:0,cha:0};
+    for(const k of ['str','int','con','dex','cha']) if(typeof state.stats[owner][k]!=='number') state.stats[owner][k]=0;
+  }
+  function getByPath(obj,path){ return path.split('.').reduce((o,k)=>o&&o[k],obj); }
+  function setByPath(obj,path,val){ const p=path.split('.'); let o=obj; for(let i=0;i<p.length-1;i++) o=o[p[i]]; o[p[p.length-1]]=val; }
   const $ = s => document.querySelector(s);
+  const STAT_DEFS=[['strength','str','Strength'],['intelligence','int','Intelligence'],['constitution','con','Constitution'],['dexterity','dex','Dexterity'],['charisma','cha','Charisma']];
   const $$ = s => [...document.querySelectorAll(s)];
 
   function persist(){ localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -5126,8 +5166,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function visibleEntries(){
     return state.entries.filter(e => Number(e.book)<state.book || (Number(e.book)===state.book && Number(e.chapter)<=state.chapter));
   }
-  function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',level:'⬆️',note:'📝'}[type] || '•'; }
-  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',level:'Level Up',note:'Notat'}[type] || type; }
+  function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',level:'⬆️',stats:'📊',note:'📝'}[type] || '•'; }
+  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',level:'Level Up',stats:'Attributter',note:'Notat'}[type] || type; }
 
   function ownerIcon(owner){ return {Carl:'🧍',Donut:'🐱',Begge:'🧍🐱'}[owner] || '👤'; }
 
@@ -5143,7 +5183,13 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   function render(){
     $('#bookSelect').value=state.book; $('#chapterInput').value=state.chapter; $('#levelValue').textContent=state.level; $('#levelInput').value=state.level;
-    $('#dungeonLevelValue').textContent=state.dungeonLevel; $('#dungeonLevelInput').value=state.dungeonLevel;
+    $('#dungeonLevelValue').textContent=state.dungeonLevel;
+    for(const owner of ['Carl','Donut']){
+      for(const k of ['str','int','con','dex','cha']){
+        const el=$(`#stat-${owner}-${k}`);
+        if(el) el.textContent=state.stats[owner][k];
+      }
+    }
     $('#currentPoint').textContent=`Bok ${state.book} · Kap. ${state.chapter}`;
     const visible = visibleEntries().sort((a,b)=>b.createdAt-a.createdAt);
     const ach = visible.filter(e=>e.type==='achievement');
@@ -5224,8 +5270,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const matches=[...cleaned.matchAll(re)];
 
     if(matches.length===0){
-      const boxItems=splitBoxContents(cleaned);
-      return (boxItems && boxItems.length) ? boxItems : [parseText(cleaned)];
+      const special=detectSpecialBlocks(cleaned);
+      return (special && special.length) ? special : [parseText(cleaned)];
     }
 
     const blocks=[], isLead=[];
@@ -5242,12 +5288,42 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const expanded=[];
     blocks.forEach((block,i)=>{
       if(isLead[i]){
-        const boxItems=splitBoxContents(block);
-        if(boxItems && boxItems.length){ expanded.push(...boxItems); return; }
+        const special=detectSpecialBlocks(block);
+        if(special && special.length){ expanded.push(...special); return; }
       }
       expanded.push(parseText(block));
     });
     return expanded.length ? expanded : [parseText(cleaned)];
+  }
+
+  function detectSpecialBlocks(block){
+    const box=splitBoxContents(block);
+    if(box && box.length) return box;
+    const stats=splitStatsBlock(block);
+    if(stats && stats.length) return stats;
+    return null;
+  }
+
+  function splitStatsBlock(text){
+    const perOwner={Carl:{},Donut:{}};
+    let anyFound=false;
+    for(const [full,key] of STAT_DEFS){
+      const re=new RegExp(full+'\\s*[:\\-]?\\s*(\\d{1,4})','gi');
+      const found=[...text.matchAll(re)];
+      if(found.length>=1){ perOwner.Carl[key]=parseInt(found[0][1],10); anyFound=true; }
+      if(found.length>=2){ perOwner.Donut[key]=parseInt(found[1][1],10); }
+    }
+    if(!anyFound) return null;
+    const labelMap={str:'Strength',int:'Intelligence',con:'Constitution',dex:'Dexterity',cha:'Charisma'};
+    const entries=[];
+    for(const owner of ['Carl','Donut']){
+      const vals=perOwner[owner];
+      const keys=Object.keys(vals);
+      if(!keys.length) continue;
+      const desc=keys.map(k=>`${labelMap[k]} ${vals[k]}`).join(', ');
+      entries.push({type:'stats', title:`Attributter – ${owner}`, description:desc, reward:'', rarity:'', owner, book:state.book, chapter:state.chapter});
+    }
+    return entries.length ? entries : null;
   }
 
   function splitBoxContents(block){
@@ -5330,12 +5406,41 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   $('#bookSelect').onchange=e=>{state.book=Number(e.target.value);persist();render();};
   $('#chapterInput').onchange=e=>{state.chapter=Math.max(1,Number(e.target.value)||1);persist();render();};
   $('#levelInput').onchange=e=>{state.level=Math.max(1,Number(e.target.value)||1);persist();render();};
-  $('#dungeonLevelInput').onchange=e=>{state.dungeonLevel=Math.max(1,Number(e.target.value)||1);persist();render();};
+
+  $$('.level-pill,.attr-cell').forEach(pill=>pill.onclick=()=>{
+    const stat=pill.dataset.stat;
+    $('#statEditTitle').textContent=pill.dataset.label;
+    $('#statEditInput').value=getByPath(state,stat);
+    $('#statEditInput').dataset.stat=stat;
+    $('#statEditDialog').showModal();
+    $('#statEditInput').focus();
+    $('#statEditInput').select();
+  });
+  $('#statEditSave').onclick=()=>{
+    const stat=$('#statEditInput').dataset.stat;
+    const isNested=stat.includes('.');
+    const val=Math.max(isNested?0:1,Number($('#statEditInput').value)||0);
+    setByPath(state,stat,val);
+    persist(); render();
+    $('#statEditDialog').close();
+  };
 
   function applyLevelIfNeeded(fields){
     if(fields.type!=='level') return;
     const m=fields.title.match(/(\d{1,3})/);
     if(m){ state.level=parseInt(m[1],10); }
+  }
+
+  function applyStatsIfNeeded(fields){
+    if(fields.type!=='stats') return;
+    const owner = fields.owner==='Donut' ? 'Donut' : 'Carl';
+    const src = `${fields.title} ${fields.description}`;
+    let any=false;
+    for(const [full,key] of STAT_DEFS){
+      const m=src.match(new RegExp(full+'\\s*[:\\-]?\\s*(\\d{1,4})','i'));
+      if(m){ state.stats[owner][key]=parseInt(m[1],10); any=true; }
+    }
+    return any;
   }
 
   $('#saveEntry').onclick=()=>{
@@ -5347,6 +5452,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       book:Number($('#entryBook').value)||state.book, chapter:Number($('#entryChapter').value)||state.chapter
     };
     applyLevelIfNeeded(fields);
+    const statsApplied=applyStatsIfNeeded(fields);
     if(editingId){
       const idx=state.entries.findIndex(e=>e.id===editingId);
       if(idx>-1) state.entries[idx]={...state.entries[idx], ...fields};
@@ -5359,7 +5465,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       reviewIndex++; toast('Lagret – neste oppføring'); showQueueEntry();
     } else {
       reviewQueue=[]; reviewIndex=0; $('#entryDialog').close();
-      toast(fields.type==='level' ? `Lagret – nivå ${state.level}` : 'Lagret');
+      toast(fields.type==='level' ? `Lagret – nivå ${state.level}` : (statsApplied ? `Lagret – attributter oppdatert` : 'Lagret'));
     }
   };
 

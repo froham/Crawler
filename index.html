@@ -5246,36 +5246,46 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function getByPath(obj,path){ return path.split('.').reduce((o,k)=>o&&o[k],obj); }
   function setByPath(obj,path,val){ const p=path.split('.'); let o=obj; for(let i=0;i<p.length-1;i++) o=o[p[i]]; o[p[p.length-1]]=val; }
   const ITEM_ICON_RULES=[
+    [/pet biscuit/i,'🐾'],
     [/potion|elixir|brew|tonic/i,'🧪'],
     [/scroll/i,'📜'],
     [/wand/i,'🪄'],
     [/bandage|antidote|pharmac|pill|smoothie|meth\b/i,'💊'],
     [/dynamite|explosiv|jug o.?boom|bomb/i,'💣'],
     [/\btrap\b/i,'🪤'],
-    [/arrow|bolt|bullet|ammo/i,'🏹'],
-    [/pet biscuit|\bbiscuit\b/i,'🐾'],
-    [/sword|blade|dagger|dirk|xistera/i,'🗡️'],
+    [/crossbow|\bbow\b|arrow|bolt|bullet|\bammo\b/i,'🏹'],
+    [/shuriken|sword|blade|dagger|dirk|xistera|fang\b/i,'🗡️'],
+    [/cudgel|\bclub\b|mace|\bpoker\b|\bbat\b|hammer|\bbaton\b|\brod\b/i,'🔨'],
     [/gauntlet|glove|mitt/i,'🧤'],
-    [/boot|shoe|footwear/i,'👢'],
+    [/torch|lighter|\bflame\b|lantern/i,'🔥'],
+    [/tattoo/i,'🖊️'],
+    [/\bpatch\b/i,'🩹'],
     [/\bring\b/i,'💍'],
     [/crown|tiara|circlet/i,'👑'],
-    [/necklace|amulet|pendant|choker/i,'📿'],
+    [/necklace|amulet|pendant|choker|anklet/i,'📿'],
     [/cloak|cape|shroud/i,'🧥'],
-    [/shirt|tunic|vest|armor|breastplate|chest/i,'👕'],
+    [/shirt|tunic|vest|armor|breastplate|chest|rattle\b/i,'👕'],
     [/pants|trousers|shorts|boxers/i,'👖'],
+    [/boot|shoe|footwear/i,'👢'],
     [/helm|helmet|\bhat\b|beanie|hood/i,'⛑️'],
     [/shield/i,'🛡️'],
     [/\bgun\b|rifle|pistol|pulse/i,'🔫'],
+    [/\bpass\b|ticket|token|coupon/i,'🎫'],
+    [/artifact/i,'🏺'],
+    [/coal\b|\bore\b|scrap metal|crafting material/i,'🪨'],
+    [/module|gadget|gizmo|\bdevice\b|automaton/i,'📟'],
+    [/workstation|workbench|\bstation\b/i,'🛠️'],
+    [/motorcycle|vehicle/i,'🏍️'],
     [/\bbook\b/i,'📖'],
     [/\bcoin/i,'🪙'],
-    [/food|meat|jerky|toast|snack/i,'🍖'],
+    [/food|meat|jerky|toast|snack|biscuit|ration/i,'🍖'],
     [/\bkey\b/i,'🗝️'],
     [/gem|crystal|shard/i,'💎'],
     [/tool|wrench|repair kit/i,'🔧']
   ];
   function itemIcon(entry){
-    const text=`${entry.title} ${entry.description||''}`;
-    for(const [re,ic] of ITEM_ICON_RULES) if(re.test(text)) return ic;
+    for(const [re,ic] of ITEM_ICON_RULES) if(re.test(entry.title)) return ic;
+    for(const [re,ic] of ITEM_ICON_RULES) if(re.test(entry.description||'')) return ic;
     return '🎒';
   }
 

@@ -3627,6 +3627,10 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
       box-shadow:0 0 14px rgba(240,201,109,.18)}
     .level-pill:active{transform:scale(.95)}
     .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 14px}
+    .gear-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 10px}
+    .gear-toggle-btn{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
+      border-radius:12px;padding:9px 6px;font-size:12.5px;font-weight:700;transition:all .15s}
+    .gear-toggle-btn.active{border-color:var(--gold-dim);background:rgba(240,201,109,.12);color:var(--gold)}
     .profile-chip{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:10px;
       padding:8px 10px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:border-color .15s}
     .profile-chip span{color:var(--text)}
@@ -3798,6 +3802,11 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
           <div class="profile-chip" data-stat="profile.Donut.race" data-label="Donut – Race" data-texttype="1">🧬 Donut: <span id="profile-Donut-race">–</span></div>
           <div class="profile-chip" data-stat="profile.Carl.class" data-label="Carl – Class" data-texttype="1">🎓 Carl: <span id="profile-Carl-class">–</span></div>
           <div class="profile-chip" data-stat="profile.Donut.class" data-label="Donut – Class" data-texttype="1">🎓 Donut: <span id="profile-Donut-class">–</span></div>
+        </div>
+
+        <div class="gear-toggle">
+          <button class="gear-toggle-btn active" data-gearowner="Carl" type="button">🧍 Carl's gear</button>
+          <button class="gear-toggle-btn" data-gearowner="Donut" type="button">🐱 Donut's gear</button>
         </div>
 
         <div class="inspect">
@@ -5261,14 +5270,20 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   }
   const SLOT_NAMES=['Head','Shoulders','Chest','Hands','Weapon','Neck','Back','Legs','Feet','Accessory'];
   const SLOT_MIGRATION={Hode:'Head',Skuldre:'Shoulders',Bryst:'Chest',Hender:'Hands',Våpen:'Weapon',Hals:'Neck',Rygg:'Back',Ben:'Legs',Føtter:'Feet',Tilbehør:'Accessory'};
-  if(state.equipped){
+  if(state.equipped && !state.equipped.Carl && !state.equipped.Donut){
+    // old flat single-owner structure -> migrate into a per-owner shape, assumed to be Carl's gear
     for(const [oldKey,newKey] of Object.entries(SLOT_MIGRATION)){
       if(state.equipped[oldKey] && !state.equipped[newKey]){ state.equipped[newKey]=state.equipped[oldKey]; }
       delete state.equipped[oldKey];
     }
+    state.equipped={Carl:state.equipped, Donut:{}};
   }
-  if(!state.equipped) state.equipped={};
-  for(const s of SLOT_NAMES) if(!(s in state.equipped)) state.equipped[s]=null;
+  if(!state.equipped) state.equipped={Carl:{},Donut:{}};
+  for(const owner of ['Carl','Donut']){
+    if(!state.equipped[owner]) state.equipped[owner]={};
+    for(const s of SLOT_NAMES) if(!(s in state.equipped[owner])) state.equipped[owner][s]=null;
+  }
+  let currentGearOwner='Carl';
   const SLOT_ICONS={Head:'⛑️',Shoulders:'🧥',Chest:'👕',Hands:'🧤',Weapon:'🗡️',Neck:'📿',Back:'🎒',Legs:'👖',Feet:'👢',Accessory:'💍'};
   const RARITY_TIERS=['Bronze','Silver','Gold','Platinum','Legendary','Celestial'];
   const RARITY_COLORS={Bronze:'#cd7f32',Silver:'#b0b8c1',Gold:'#f0c96d',Platinum:'#7fe0d0',Legendary:'#ff8c42',Celestial:'#b98cff'};
@@ -5344,10 +5359,11 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     }
     return results.length ? results : null;
   }
-  function equippedStatBonus(key){
+  function equippedStatBonus(key,owner){
     let total=0;
+    const set=state.equipped[owner]||{};
     for(const slot of SLOT_NAMES){
-      const id=state.equipped[slot];
+      const id=set[slot];
       if(!id) continue;
       const item=state.entries.find(e=>e.id===id);
       if(!item) continue;
@@ -5378,16 +5394,23 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   function ownerIcon(owner){ return {Carl:'🧍',Donut:'🐱',Both:'🧍🐱',Begge:'🧍🐱'}[owner] || '👤'; }
 
+  function findEquippedInfo(id){
+    for(const owner of ['Carl','Donut']){
+      const slot=SLOT_NAMES.find(s=>state.equipped[owner][s]===id);
+      if(slot) return {owner,slot};
+    }
+    return null;
+  }
   function inventoryTile(e){
-    const equippedSlot=SLOT_NAMES.find(s=>state.equipped[s]===e.id);
+    const equipInfo=findEquippedInfo(e.id);
     const color=RARITY_COLORS[e.rarity]||'#5d4b70';
     const qty=e.quantity||1;
     return `<div class="inv-tile" data-id="${e.id}" style="border-color:${color};box-shadow:0 0 10px ${color}55">
-      ${equippedSlot?`<div class="inv-equipped" title="Utstyrt: ${equippedSlot}">${SLOT_ICONS[equippedSlot]||'✓'}</div>`:''}
+      ${equipInfo?`<div class="inv-equipped" title="Equipped on ${equipInfo.owner}: ${equipInfo.slot}">${SLOT_ICONS[equipInfo.slot]||'✓'}</div>`:''}
       ${qty>1?`<div class="inv-qty">×${qty}</div>`:''}
       <div class="inv-icon">${itemIcon(e)}</div>
       <div class="inv-name">${esc(e.title)}</div>
-      <button class="inv-use-btn qty-btn" data-id="${e.id}" data-delta="-1" title="Bruk 1">−</button>
+      <button class="inv-use-btn qty-btn" data-id="${e.id}" data-delta="-1" title="Use 1">−</button>
     </div>`;
   }
 
@@ -5443,8 +5466,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     $('#recentList').innerHTML=visible.slice(0,6).map(entryCard).join('') || `<div class="empty">No entries yet.</div>`;
     $('#achievementList').innerHTML=activeList.map(entryCard).join('') || `<div class="empty">${meta.empty}</div>`;
     const sortedItems=[...items].sort((a,b)=>{
-      const aEquipped=SLOT_NAMES.some(s=>state.equipped[s]===a.id);
-      const bEquipped=SLOT_NAMES.some(s=>state.equipped[s]===b.id);
+      const aEquipped=findEquippedInfo(a.id)!==null;
+      const bEquipped=findEquippedInfo(b.id)!==null;
       if(aEquipped!==bEquipped) return aEquipped ? -1 : 1;
       return b.createdAt-a.createdAt;
     });
@@ -5455,7 +5478,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     $$('.delete-entry').forEach(btn=>btn.onclick=(ev)=>{
       ev.stopPropagation();
       state.entries=state.entries.filter(e=>e.id!==btn.dataset.id);
-      for(const s of SLOT_NAMES) if(state.equipped[s]===btn.dataset.id) state.equipped[s]=null;
+      for(const owner of ['Carl','Donut']) for(const s of SLOT_NAMES) if(state.equipped[owner][s]===btn.dataset.id) state.equipped[owner][s]=null;
       persist();render();toast('Deleted');
     });
     $$('.qty-btn').forEach(btn=>btn.onclick=(ev)=>{
@@ -5466,7 +5489,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       item.quantity=(item.quantity||1)+delta;
       if(item.quantity<=0){
         state.entries=state.entries.filter(e=>e.id!==id);
-        for(const s of SLOT_NAMES) if(state.equipped[s]===id) state.equipped[s]=null;
+        for(const owner of ['Carl','Donut']) for(const s of SLOT_NAMES) if(state.equipped[owner][s]===id) state.equipped[owner][s]=null;
         toast('Used up');
       }
       persist(); render();
@@ -5485,7 +5508,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function renderSlots(){
     $$('.slot').forEach(btn=>{
       const slot=btn.dataset.slot;
-      const id=state.equipped[slot];
+      const id=state.equipped[currentGearOwner][slot];
       const item=id ? state.entries.find(e=>e.id===id) : null;
       if(item){
         btn.classList.add('filled');
@@ -5843,7 +5866,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       const owner=span.dataset.owner, key=span.dataset.key;
       const base=formatGroupVal(g.store, state[g.store][owner][key]);
       let bonus=0;
-      if(g.store==='stats' && owner==='Carl') bonus=equippedStatBonus(key);
+      if(g.store==='stats') bonus=equippedStatBonus(key,owner);
       span.innerHTML = bonus>0 ? `${base}<span class="bonus">(+${bonus})</span>` : base;
     });
   }
@@ -5919,7 +5942,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     }
     const entry={ id:crypto.randomUUID?crypto.randomUUID():String(Date.now()), ...fields, createdAt:Date.now() };
     state.entries.push(entry); persist(); render();
-    if(pendingEquipSlot){ state.equipped[pendingEquipSlot]=entry.id; pendingEquipSlot=null; persist(); render(); }
+    if(pendingEquipSlot){ state.equipped[currentGearOwner][pendingEquipSlot]=entry.id; pendingEquipSlot=null; persist(); render(); }
     if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
       reviewIndex++; toast('Saved – next entry'); showQueueEntry();
     } else {
@@ -6121,8 +6144,8 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   function openSlotDialog(slot){
     currentSlot=slot;
-    $('#slotDialogTitle').textContent=`${SLOT_ICONS[slot]||''} ${slot}`;
-    const equippedId=state.equipped[slot];
+    $('#slotDialogTitle').textContent=`${SLOT_ICONS[slot]||''} ${slot} (${currentGearOwner})`;
+    const equippedId=state.equipped[currentGearOwner][slot];
     const equippedItem=equippedId ? state.entries.find(e=>e.id===equippedId) : null;
     if(equippedItem){
       $('#slotEquippedView').style.display='block';
@@ -6142,12 +6165,12 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     } else {
       $('#slotEquippedView').style.display='none';
       $('#slotPickerView').style.display='block';
-      const availableItems=visibleEntries().filter(e=>e.type==='item');
+      const availableItems=visibleEntries().filter(e=>e.type==='item' && (e.owner===currentGearOwner || e.owner==='Both'));
       $('#slotItemList').innerHTML=availableItems.length
         ? availableItems.map(itemPickerRow).join('')
-        : `<div class="empty">No items registered yet.</div>`;
+        : `<div class="empty">No items registered for ${currentGearOwner} yet.</div>`;
       $$('.slot-pick-row').forEach(btn=>btn.onclick=()=>{
-        state.equipped[slot]=btn.dataset.id; persist(); render();
+        state.equipped[currentGearOwner][slot]=btn.dataset.id; persist(); render();
         $('#slotDialog').close();
       });
     }
@@ -6155,20 +6178,25 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   }
 
   $$('.slot').forEach(b=>b.onclick=()=>openSlotDialog(b.dataset.slot));
+  $$('.gear-toggle-btn').forEach(btn=>btn.onclick=()=>{
+    currentGearOwner=btn.dataset.gearowner;
+    $$('.gear-toggle-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    renderSlots();
+  });
 
   $('#slotSwapBtn').onclick=()=>{
-    state.equipped[currentSlot]=null;
+    state.equipped[currentGearOwner][currentSlot]=null;
     openSlotDialog(currentSlot);
   };
   $('#slotUnequipBtn').onclick=()=>{
-    state.equipped[currentSlot]=null; persist(); render();
+    state.equipped[currentGearOwner][currentSlot]=null; persist(); render();
     $('#slotDialog').close();
   };
   $('#slotNewItemBtn').onclick=()=>{
     pendingEquipSlot=currentSlot;
     editingId=null;
     $('#slotDialog').close();
-    openEntry({type:'item',title:'',description:`Utstyr for slot: ${currentSlot}`});
+    openEntry({type:'item',title:'',owner:currentGearOwner,description:`Gear for slot: ${currentSlot}`});
   };
   render();
 })();

@@ -5237,6 +5237,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
         <div class="two"><input id="entryBook" type="number" min="1" placeholder="Book" /><input id="entryChapter" type="number" min="1" placeholder="Chapter" /></div>
       </div>
       <button class="secondary" id="skipEntry" type="button" style="display:none">Skip</button>
+      <button class="secondary" id="mergeEntryBtn" type="button" style="display:none">Merge with…</button>
       <button class="danger" id="deleteEntryBtn" type="button" style="display:none">Delete entry</button>
       <button class="primary" id="saveEntry">Save entry</button>
     </div>
@@ -5250,9 +5251,24 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       <label>Level<input id="levelInput" type="number" min="1" value="1" /></label>
       <button class="secondary" id="exportBtn">Export backup</button>
       <label class="secondary" style="display:block;text-align:center">Import backup<input id="importInput" type="file" accept=".json,application/json" hidden /></label>
+      <button class="secondary" id="findDuplicatesBtn">Find duplicate items</button>
       <button class="danger" id="resetBtn">Delete all local data</button>
       <p style="font-size:12px;color:var(--muted)">Everything is stored in the browser's local storage on this device.</p>
     </div>
+  </div>
+</dialog>
+
+<dialog id="mergePickerDialog">
+  <div class="modal-head"><h3>Merge with…</h3><button class="icon-btn" data-close="mergePickerDialog">✕</button></div>
+  <div class="modal-body">
+    <div id="mergePickerBody" class="form-grid"></div>
+  </div>
+</dialog>
+
+<dialog id="duplicatesDialog">
+  <div class="modal-head"><h3>Duplicate items</h3><button class="icon-btn" data-close="duplicatesDialog">✕</button></div>
+  <div class="modal-body">
+    <div id="duplicatesBody" class="form-grid"></div>
   </div>
 </dialog>
 
@@ -5490,7 +5506,15 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       if(item.quantity<=0){
         state.entries=state.entries.filter(e=>e.id!==id);
         for(const owner of ['Carl','Donut']) for(const s of SLOT_NAMES) if(state.equipped[owner][s]===id) state.equipped[owner][s]=null;
-        toast('Used up');
+        state.entries.push({
+          id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),
+          type:'note', owner:item.owner||'Carl',
+          title:`Used last ${item.title}`,
+          description:`Fully used up (was tracked as an item: ${item.title}).`,
+          reward:'', rarity:'', quantity:1,
+          book:state.book, chapter:state.chapter, createdAt:Date.now()
+        });
+        toast('Used up – logged to timeline');
       }
       persist(); render();
     });
@@ -5553,7 +5577,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     $('#entryQuantity').value=prefill.quantity||1;
     $('#entryBook').value=prefill.book||state.book; $('#entryChapter').value=prefill.chapter||state.chapter;
     updateQuantityFieldVisibility();
-    const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry'), delBtn=$('#deleteEntryBtn'), heading=$('#entryDialogTitle');
+    const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry'), delBtn=$('#deleteEntryBtn'), mergeBtn=$('#mergeEntryBtn'), heading=$('#entryDialogTitle');
     if(reviewQueue.length>1){
       info.textContent=`Entry ${reviewIndex+1} of ${reviewQueue.length}`;
       info.style.display='block'; skipBtn.style.display='block';
@@ -5562,6 +5586,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     }
     heading.textContent = editingId ? 'Edit entry' : 'New entry';
     delBtn.style.display = editingId ? 'block' : 'none';
+    mergeBtn.style.display = (editingId && prefill.type==='item') ? 'block' : 'none';
     const dlg=$('#entryDialog');
     if(!dlg.open) dlg.showModal();
   }
@@ -5926,7 +5951,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       return;
     }
     if(fields.type==='item'){
-      const match=state.entries.find(e=>e.type==='item' && e.owner===fields.owner && e.title.trim().toLowerCase()===fields.title.trim().toLowerCase());
+      const match=state.entries.find(e=>e.type==='item' && e.owner===fields.owner && normalizeItemTitle(e.title)===normalizeItemTitle(fields.title));
       if(match){
         match.quantity=(match.quantity||1)+fields.quantity;
         if(fields.statBonuses) match.statBonuses=fields.statBonuses;
@@ -5954,6 +5979,27 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   $('#deleteEntryBtn').onclick=()=>{
     if(editingId){ state.entries=state.entries.filter(e=>e.id!==editingId); persist(); render(); }
     editingId=null; $('#entryDialog').close(); toast('Deleted');
+  };
+
+  $('#mergeEntryBtn').onclick=()=>{
+    if(!editingId) return;
+    const current=state.entries.find(e=>e.id===editingId);
+    if(!current) return;
+    const others=state.entries.filter(e=>e.type==='item' && e.id!==editingId);
+    $('#mergePickerBody').innerHTML = others.length
+      ? others.map(itemPickerRow).join('')
+      : `<div class="empty">No other items to merge with.</div>`;
+    $$('#mergePickerBody .slot-pick-row').forEach(btn=>btn.onclick=()=>{
+      const target=state.entries.find(e=>e.id===btn.dataset.id);
+      if(!target) return;
+      target.quantity=(target.quantity||1)+(current.quantity||1);
+      state.entries=state.entries.filter(e=>e.id!==current.id);
+      for(const owner of ['Carl','Donut']) for(const s of SLOT_NAMES) if(state.equipped[owner][s]===current.id) state.equipped[owner][s]=target.id;
+      editingId=null; persist(); render();
+      $('#mergePickerDialog').close(); $('#entryDialog').close();
+      toast(`Merged – now ×${target.quantity}`);
+    });
+    $('#mergePickerDialog').showModal();
   };
 
   $('#skipEntry').onclick=()=>{
@@ -6125,7 +6171,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const f=e.target.files?.[0];if(!f)return;
     try{
       const imported=JSON.parse(await f.text());
-      if(!Array.isArray(imported.entries)) throw new Error('Ugyldig fil');
+      if(!Array.isArray(imported.entries)) throw new Error('Invalid file');
       Object.assign(state,imported);persist();render();toast('Backup imported');
     }catch{toast('Could not import the file');}
   };
@@ -6135,6 +6181,55 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       state.entries=[];state.book=1;state.chapter=1;state.level=1;persist();render();$('#settingsDialog').close();toast('Data deleted');
     }
   };
+
+  function findDuplicateGroups(){
+    const items=state.entries.filter(e=>e.type==='item');
+    const groups={};
+    for(const item of items){
+      const key=`${item.owner}::${normalizeItemTitle(item.title)}`;
+      if(!groups[key]) groups[key]=[];
+      groups[key].push(item);
+    }
+    return Object.values(groups).filter(g=>g.length>1);
+  }
+
+  function renderDuplicatesDialog(){
+    const groups=findDuplicateGroups();
+    if(!groups.length){
+      $('#duplicatesBody').innerHTML=`<div class="empty">No duplicate items found.</div>`;
+      return;
+    }
+    $('#duplicatesBody').innerHTML=groups.map((group,gi)=>{
+      const totalQty=group.reduce((sum,it)=>sum+(it.quantity||1),0);
+      const rows=group.map(it=>`<div style="font-size:12px;color:var(--muted);padding:2px 0">${esc(it.title)} — ×${it.quantity||1}</div>`).join('');
+      return `<div class="stat-row" style="grid-template-columns:1fr auto;display:grid">
+        <div>
+          <b>${esc(group[0].title)}</b> <span style="color:var(--muted);font-size:12px">(${group[0].owner})</span>
+          ${rows}
+        </div>
+        <button class="primary" data-merge-group="${gi}" type="button" style="align-self:center">Merge → ×${totalQty}</button>
+      </div>`;
+    }).join('');
+    $$('[data-merge-group]').forEach(btn=>btn.onclick=()=>{
+      const group=groups[Number(btn.dataset.mergeGroup)];
+      const [keep,...rest]=group.sort((a,b)=>a.createdAt-b.createdAt);
+      keep.quantity=group.reduce((sum,it)=>sum+(it.quantity||1),0);
+      const restIds=new Set(rest.map(r=>r.id));
+      state.entries=state.entries.filter(e=>!restIds.has(e.id));
+      for(const owner of ['Carl','Donut']) for(const s of SLOT_NAMES) if(restIds.has(state.equipped[owner][s])) state.equipped[owner][s]=keep.id;
+      persist(); render();
+      toast('Merged');
+      renderDuplicatesDialog();
+    });
+  }
+  $('#findDuplicatesBtn').onclick=()=>{
+    renderDuplicatesDialog();
+    $('#duplicatesDialog').showModal();
+  };
+
+  function normalizeItemTitle(title){
+    return (title||'').toLowerCase().trim().replace(/\s+/g,' ').replace(/[.,!?;:'"()]+$/g,'');
+  }
 
   function itemPickerRow(entry){
     return `<button type="button" class="secondary slot-pick-row" data-id="${entry.id}" style="text-align:left">

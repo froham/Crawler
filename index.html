@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="no">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
@@ -3626,6 +3626,11 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
       cursor:pointer;transition:transform .15s,box-shadow .15s;
       box-shadow:0 0 14px rgba(240,201,109,.18)}
     .level-pill:active{transform:scale(.95)}
+    .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 14px}
+    .profile-chip{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:10px;
+      padding:8px 10px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:border-color .15s}
+    .profile-chip span{color:var(--text)}
+    .profile-chip:active{border-color:var(--gold-dim)}
     .inspect{display:grid;grid-template-columns:58px 1fr 58px;gap:8px;align-items:center;padding:12px}
     .slots{display:grid;gap:8px}
     .slot{aspect-ratio:1;border:1px solid #5d4b70;border-radius:12px;background:linear-gradient(145deg,#241a31,#100d15);
@@ -3696,9 +3701,10 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
     .fill.hp{width:82%;background:linear-gradient(90deg,#8f2532,var(--red))}
     .fill.xp{width:63%;background:linear-gradient(90deg,#7753b6,var(--purple))}
     .section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 10px}
-    .filter-chips{display:flex;gap:8px;margin:0 2px 14px;overflow-x:auto}
-    .filter-chip{flex-shrink:0;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
-      border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;white-space:nowrap;transition:all .15s}
+    .filter-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 2px 14px}
+    .filter-chip{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
+      border-radius:12px;padding:9px 4px;font-size:11.5px;font-weight:700;text-align:center;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all .15s}
     .filter-chip.active{border-color:var(--gold-dim);background:rgba(240,201,109,.12);color:var(--gold)}
     .section-title h3{margin:0;font-size:16px;position:relative;padding-left:10px}
     .section-title h3:before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:2px;
@@ -3764,34 +3770,41 @@ aXplcyI6ICIyNTZ4MjU2IiwgInR5cGUiOiAiaW1hZ2UvcG5nIiwgInB1cnBvc2UiOiAiYW55In1dfQ==
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><h1>Dungeon Companion</h1><p>Privat, lokal leseoversikt</p></div>
+    <div class="brand"><h1>Dungeon Companion</h1><p>Private, local reading tracker</p></div>
     <button class="icon-btn" id="settingsBtn">⚙️</button>
   </header>
 
   <div class="chapter-row">
-    <select id="bookSelect" aria-label="Bok">
-      <option value="1">Bok 1</option><option value="2">Bok 2</option><option value="3">Bok 3</option>
-      <option value="4">Bok 4</option><option value="5">Bok 5</option><option value="6">Bok 6</option><option value="7">Bok 7</option>
+    <select id="bookSelect" aria-label="Book">
+      <option value="1">Book 1</option><option value="2">Book 2</option><option value="3">Book 3</option>
+      <option value="4">Book 4</option><option value="5">Book 5</option><option value="6">Book 6</option><option value="7">Book 7</option>
     </select>
-    <input id="chapterInput" type="number" min="1" value="1" placeholder="Kapittel" />
+    <input id="chapterInput" type="number" min="1" value="1" placeholder="Chapter" />
   </div>
 
   <main>
     <section class="screen active" data-screen="character">
       <article class="hero-card">
         <div class="hero-head">
-          <div><h2>Carl</h2><p>Dungeon crawler · personlig oversikt</p></div>
+          <div><h2>Carl</h2><p>Dungeon crawler · personal overview</p></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-            <div class="level-pill" id="levelPill" data-stat="level" data-label="Nivå (Lvl)">Lvl <span id="levelValue">1</span></div>
-            <div class="level-pill" id="dungeonLevelPill" data-stat="dungeonLevel" data-label="Dungeon-nivå">🕳️ Nivå <span id="dungeonLevelValue">1</span></div>
+            <div class="level-pill" id="levelPill" data-stat="level" data-label="Level (Lvl)">Lvl <span id="levelValue">1</span></div>
+            <div class="level-pill" id="dungeonLevelPill" data-stat="dungeonLevel" data-label="Dungeon level">🕳️ Level <span id="dungeonLevelValue">1</span></div>
           </div>
+        </div>
+
+        <div class="profile-grid">
+          <div class="profile-chip" data-stat="profile.Carl.race" data-label="Carl – Race" data-texttype="1">🧬 Carl: <span id="profile-Carl-race">–</span></div>
+          <div class="profile-chip" data-stat="profile.Donut.race" data-label="Donut – Race" data-texttype="1">🧬 Donut: <span id="profile-Donut-race">–</span></div>
+          <div class="profile-chip" data-stat="profile.Carl.class" data-label="Carl – Class" data-texttype="1">🎓 Carl: <span id="profile-Carl-class">–</span></div>
+          <div class="profile-chip" data-stat="profile.Donut.class" data-label="Donut – Class" data-texttype="1">🎓 Donut: <span id="profile-Donut-class">–</span></div>
         </div>
 
         <div class="inspect">
           <div class="slots">
-            <button class="slot" data-slot="Hode">Hode</button><button class="slot" data-slot="Skuldre">Skuldre</button>
-            <button class="slot" data-slot="Bryst">Bryst</button><button class="slot" data-slot="Hender">Hender</button>
-            <button class="slot" data-slot="Våpen">Våpen</button>
+            <button class="slot" data-slot="Head">Head</button><button class="slot" data-slot="Shoulders">Shoulders</button>
+            <button class="slot" data-slot="Chest">Chest</button><button class="slot" data-slot="Hands">Hands</button>
+            <button class="slot" data-slot="Weapon">Weapon</button>
           </div>
           <div class="character-stage">
             <img class="hero-art" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoAAAAO3CAMAAACEGwWwAAADAFBMVEUlGyKnV9ogFiHVnOHToJ5aI2Cvk1SnlB8hFl1nXWCWXakcEiFYKCEpGx2gb0/ppG7Y
@@ -5006,18 +5019,18 @@ k1mjr3/FbcgARkZyv0PP57MmCYVDMXg/XbuwboOdJi9ljOhbIwQAth2JO3GDhLJTfcmmPWtEjw7nmL0h
 /QshZy3EYiL8Hj//RmzaWia5c+V6l4ixwrmJbkKDG0NjRq/lCaMHSQNmXJ66DRltxQ16RWtjc8MQ3ZIG6cRDzoPzKSREPEsx2btiiwCTRxBei0IivJxPpKG+
 tJVztF2jW9SAZxEhY0EQRP6QNIWOBgFj3GjVorMHhjAxMjCIDAzfZVHXvE3kbgbAvbbb/UqZs6K4UHLNtitzPhB/YdG4ODowYgdHRVyVVlom+oQyEKglma8v
 YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAIAAQBgCAQAAi6JQDltsfS67lUyv7wFe4bqMqGCp91
-3SX7H+ABQRCCQQAgCNSL/gNLYImrPkAr1QAAAABJRU5ErkJggg==" alt="Carl og Princess Donut" />
+3SX7H+ABQRCCQQAgCNSL/gNLYImrPkAr1QAAAABJRU5ErkJggg==" alt="Carl and Princess Donut" />
             <div class="name-tag">Carl & Princess Donut</div>
           </div>
           <div class="slots">
-            <button class="slot" data-slot="Hals">Hals</button><button class="slot" data-slot="Rygg">Rygg</button>
-            <button class="slot" data-slot="Ben">Ben</button><button class="slot" data-slot="Føtter">Føtter</button>
-            <button class="slot" data-slot="Tilbehør">Tilbehør</button>
+            <button class="slot" data-slot="Neck">Neck</button><button class="slot" data-slot="Back">Back</button>
+            <button class="slot" data-slot="Legs">Legs</button><button class="slot" data-slot="Feet">Feet</button>
+            <button class="slot" data-slot="Accessory">Accessory</button>
           </div>
         </div>
 
         <div class="two" style="padding:0 12px 14px">
-          <button class="secondary" id="openStatsBtn" type="button">📊 Attributter</button>
+          <button class="secondary" id="openStatsBtn" type="button">📊 Attributes</button>
           <button class="secondary" id="openRatingsBtn" type="button">📈 Ratings</button>
         </div>
 
@@ -5028,16 +5041,19 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
         </div>
       </article>
 
-      <div class="section-title"><h3>Siste registreringer</h3><small id="currentPoint">Bok 1 · Kap. 1</small></div>
+      <div class="section-title"><h3>Recent entries</h3><small id="currentPoint">Book 1 · Ch. 1</small></div>
       <div class="grid" id="recentList"></div>
     </section>
 
     <section class="screen" data-screen="achievements">
-      <div class="section-title"><h3 id="achievementScreenTitle">Achievements</h3><small id="achievementLabel">0 totalt</small></div>
+      <div class="section-title"><h3 id="achievementScreenTitle">Achievements</h3><small id="achievementLabel">0 total</small></div>
       <div class="filter-chips">
         <button class="filter-chip active" data-logtype="achievement">🏆 Achievements</button>
         <button class="filter-chip" data-logtype="skill">✨ Skills</button>
         <button class="filter-chip" data-logtype="quest">📜 Quests</button>
+        <button class="filter-chip" data-logtype="buff">🌀 Buffs</button>
+        <button class="filter-chip" data-logtype="benefit">🎖️ Benefits</button>
+        <button class="filter-chip" data-logtype="spell">🔮 Spells</button>
       </div>
       <div class="grid" id="achievementList"></div>
     </section>
@@ -5048,27 +5064,27 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     </section>
 
     <section class="screen" data-screen="timeline">
-      <div class="section-title"><h3>Tidslinje</h3><small>Etter bok og kapittel</small></div>
+      <div class="section-title"><h3>Timeline</h3><small>By book and chapter</small></div>
       <div class="grid" id="timelineList"></div>
     </section>
 
     <section class="screen" data-screen="scan">
       <div class="scan-zone">
-        <h3>Skann tekst</h3>
-        <p style="color:var(--muted);font-size:13px">Ta bilde av achievement, item, skill eller quest. Bildet behandles lokalt i nettleseren.</p>
+        <h3>Scan text</h3>
+        <p style="color:var(--muted);font-size:13px">Take a photo of an achievement, item, skill, or quest. The image is processed locally in the browser.</p>
         <div style="display:grid;gap:8px;margin-top:10px">
-          <button class="primary" id="openCameraBtn" type="button">📷 Ta bilde i appen</button>
-          <label class="secondary" style="display:block;text-align:center">Velg fra bibliotek
+          <button class="primary" id="openCameraBtn" type="button">📷 Take photo in app</button>
+          <label class="secondary" style="display:block;text-align:center">Choose from library
             <input id="imageInput" type="file" accept="image/*" hidden />
           </label>
         </div>
-        <img id="imagePreview" class="preview" alt="Forhåndsvisning" />
+        <img id="imagePreview" class="preview" alt="Preview" />
         <div class="progress" id="ocrProgress"></div>
       </div>
 
-      <div class="section-title"><h3>Manuell tekst</h3><small>Lim inn eller skriv</small></div>
-      <textarea id="rawText" placeholder="Eksempel: New Achievement! ..."></textarea>
-      <button class="primary" style="width:100%;margin-top:10px" id="analyseBtn">Analyser tekst</button>
+      <div class="section-title"><h3>Manual text</h3><small>Paste or type</small></div>
+      <textarea id="rawText" placeholder="Example: New Achievement! ..."></textarea>
+      <button class="primary" style="width:100%;margin-top:10px" id="analyseBtn">Analyze text</button>
     </section>
   </main>
 </div>
@@ -5076,44 +5092,44 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 <button class="fab" id="quickAdd">＋</button>
 
 <nav>
-  <button class="active" data-nav="character"><strong>🧍</strong>Karakter</button>
-  <button data-nav="achievements"><strong>🏆</strong>Achievements</button>
+  <button class="active" data-nav="character"><strong>🧍</strong>Character</button>
+  <button data-nav="achievements"><strong>📔</strong>Journal</button>
   <button data-nav="inventory"><strong>🎒</strong>Inventory</button>
-  <button data-nav="timeline"><strong>🕒</strong>Tidslinje</button>
-  <button data-nav="scan"><strong>📷</strong>Skann</button>
+  <button data-nav="timeline"><strong>🕒</strong>Timeline</button>
+  <button data-nav="scan"><strong>📷</strong>Scan</button>
 </nav>
 
 <dialog id="cameraDialog">
-  <div class="modal-head"><h3>Kamera</h3><button class="icon-btn" id="cameraCloseBtn" type="button">✕</button></div>
+  <div class="modal-head"><h3>Camera</h3><button class="icon-btn" id="cameraCloseBtn" type="button">✕</button></div>
   <div class="modal-body" style="padding:0">
     <video id="cameraView" playsinline autoplay muted style="width:100%;display:block;background:#000;max-height:60vh;object-fit:cover"></video>
     <canvas id="cameraCanvas" style="display:none"></canvas>
     <div style="padding:14px 16px;display:grid;gap:10px">
-      <button class="primary" id="captureBtn" type="button">Ta bilde</button>
-      <p style="font-size:12px;color:var(--muted);margin:0">Kameraet kjører kun lokalt i nettleseren og slås av når du lukker dette vinduet.</p>
+      <button class="primary" id="captureBtn" type="button">Take photo</button>
+      <p style="font-size:12px;color:var(--muted);margin:0">The camera runs only locally in the browser and switches off when you close this window.</p>
     </div>
   </div>
 </dialog>
 
 <dialog id="statEditDialog">
-  <div class="modal-head"><h3 id="statEditTitle">Nivå</h3><button class="icon-btn" data-close="statEditDialog">✕</button></div>
+  <div class="modal-head"><h3 id="statEditTitle">Level</h3><button class="icon-btn" data-close="statEditDialog">✕</button></div>
   <div class="modal-body">
     <div class="form-grid">
       <input id="statEditInput" type="number" min="1" inputmode="numeric" style="font-size:22px;text-align:center;font-weight:800" />
-      <button class="primary" id="statEditSave">Lagre</button>
+      <button class="primary" id="statEditSave">Save</button>
     </div>
   </div>
 </dialog>
 
 <dialog id="statGroupDialog">
-  <div class="modal-head"><h3 id="statGroupTitle">Attributter</h3><button class="icon-btn" data-close="statGroupDialog">✕</button></div>
+  <div class="modal-head"><h3 id="statGroupTitle">Attributes</h3><button class="icon-btn" data-close="statGroupDialog">✕</button></div>
   <div class="modal-body">
     <div id="statGroupBody"></div>
   </div>
 </dialog>
 
 <dialog id="slotDialog">
-  <div class="modal-head"><h3 id="slotDialogTitle">Slot</h3><button class="icon-btn" data-close="slotDialog">✕</button></div>
+  <div class="modal-head"><h3 id="slotDialogTitle">Equipment Slot</h3><button class="icon-btn" data-close="slotDialog">✕</button></div>
   <div class="modal-body">
     <div id="slotEquippedView" style="display:none">
       <div class="field">
@@ -5122,19 +5138,19 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
         <small id="slotEquippedDesc" style="color:var(--muted);display:block;margin-top:6px"></small>
       </div>
       <div class="two" style="margin-top:14px">
-        <button class="secondary" id="slotSwapBtn" type="button">Bytt ut</button>
-        <button class="danger" id="slotUnequipBtn" type="button">Ta av</button>
+        <button class="secondary" id="slotSwapBtn" type="button">Swap</button>
+        <button class="danger" id="slotUnequipBtn" type="button">Unequip</button>
       </div>
     </div>
     <div id="slotPickerView">
       <div id="slotItemList" class="form-grid"></div>
-      <button class="primary" id="slotNewItemBtn" type="button" style="margin-top:10px">+ Nytt item til denne sloten</button>
+      <button class="primary" id="slotNewItemBtn" type="button" style="margin-top:10px">+ New item for this slot</button>
     </div>
   </div>
 </dialog>
 
 <dialog id="cropDialog">
-  <div class="modal-head"><h3>Beskjær bilde</h3><button class="icon-btn" id="cropCloseBtn" type="button">✕</button></div>
+  <div class="modal-head"><h3>Crop image</h3><button class="icon-btn" id="cropCloseBtn" type="button">✕</button></div>
   <div class="modal-body" style="padding:0">
     <div id="cropStage" style="position:relative;background:#000;overflow:hidden;line-height:0">
       <img id="cropImage" draggable="false" style="width:100%;height:auto;display:block;user-select:none;-webkit-user-select:none" />
@@ -5146,85 +5162,87 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       </div>
     </div>
     <div style="padding:14px 16px;display:grid;gap:10px">
-      <button class="primary" id="confirmCropBtn" type="button">Bruk utsnitt</button>
-      <button class="secondary" id="useFullImageBtn" type="button">Bruk hele bildet</button>
-      <p style="font-size:12px;color:var(--muted);margin:0">Dra i de gyldne hjørnene for å markere kun teksten du vil lese inn (f.eks. én achievement).</p>
+      <button class="primary" id="confirmCropBtn" type="button">Use selection</button>
+      <button class="secondary" id="useFullImageBtn" type="button">Use full image</button>
+      <p style="font-size:12px;color:var(--muted);margin:0">Drag the golden corners to select only the text you want to read (e.g. one achievement).</p>
     </div>
   </div>
 </dialog>
 
 <dialog id="entryDialog">
   <div class="modal-head">
-    <div><h3 id="entryDialogTitle">Ny oppføring</h3><small id="entryQueueInfo" style="color:var(--muted);display:none"></small></div>
+    <div><h3 id="entryDialogTitle">New entry</h3><small id="entryQueueInfo" style="color:var(--muted);display:none"></small></div>
     <button class="icon-btn" data-close="entryDialog">✕</button>
   </div>
   <div class="modal-body">
     <div class="form-grid">
-      <div class="field"><label>Type <small>– hva slags hendelse er dette?</small></label>
+      <div class="field"><label>Type <small>– what kind of event is this?</small></label>
         <select id="entryType">
           <option value="achievement">Achievement</option><option value="item">Item</option>
           <option value="skill">Skill</option><option value="quest">Quest</option>
-          <option value="level">Level Up</option><option value="stats">Attributter</option><option value="ratings">Ratings</option><option value="note">Notat</option>
+          <option value="level">Level Up</option><option value="stats">Attributes</option><option value="ratings">Ratings</option>
+          <option value="buff">Buff/Debuff</option><option value="benefit">Benefit</option><option value="spell">Spell</option>
+          <option value="note">Note</option>
         </select>
       </div>
-      <div class="field"><label>Hvem gjelder det <small>– Carl, Donut eller begge</small></label>
-        <select id="entryOwner"><option>Carl</option><option>Donut</option><option>Begge</option></select>
+      <div class="field"><label>Who it applies to <small>– Carl, Donut, or both</small></label>
+        <select id="entryOwner"><option>Carl</option><option>Donut</option><option>Both</option></select>
       </div>
-      <div class="field"><label>Navn <small>– tittelen, f.eks. «Crazy Cat Lady»</small></label>
+      <div class="field"><label>Name <small>– the title, e.g. «Crazy Cat Lady»</small></label>
         <div class="mini-wrap">
-          <textarea id="entryTitle" class="mini-area" rows="1" placeholder="Navn"></textarea>
+          <textarea id="entryTitle" class="mini-area" rows="1" placeholder="Name"></textarea>
           <button type="button" class="expand-btn" data-target="entryTitle">⤢</button>
         </div>
       </div>
-      <div class="field"><label>Beskrivelse <small>– full tekst fra boken</small></label>
-        <textarea id="entryDescription" placeholder="Beskrivelse"></textarea>
+      <div class="field"><label>Description <small>– full text from the book</small></label>
+        <textarea id="entryDescription" placeholder="Description"></textarea>
       </div>
       <div class="two">
-        <div class="field"><label>Belønning <small>– valgfritt</small></label>
+        <div class="field"><label>Reward <small>– optional</small></label>
           <div class="mini-wrap">
-            <textarea id="entryReward" class="mini-area" rows="1" placeholder="Belønning / effekt"></textarea>
+            <textarea id="entryReward" class="mini-area" rows="1" placeholder="Reward / effect"></textarea>
             <button type="button" class="expand-btn" data-target="entryReward">⤢</button>
           </div>
         </div>
-        <div class="field"><label>Sjeldenhet <small>– boks-nivå fra boken</small></label>
+        <div class="field"><label>Rarity <small>– box tier from the book</small></label>
           <select id="entryRaritySelect">
-            <option value="">– Ingen valgt –</option>
+            <option value="">– None selected –</option>
             <option value="Bronze">🟤 Bronze</option>
             <option value="Silver">⚪ Silver</option>
             <option value="Gold">🟡 Gold</option>
             <option value="Platinum">🔵 Platinum</option>
             <option value="Legendary">🟠 Legendary</option>
             <option value="Celestial">🟣 Celestial</option>
-            <option value="__custom__">Annet (skriv selv)</option>
+            <option value="__custom__">Other (type your own)</option>
           </select>
           <div class="mini-wrap" id="entryRarityCustomWrap" style="display:none;margin-top:6px">
-            <textarea id="entryRarity" class="mini-area" rows="1" placeholder="Skriv sjeldenhet"></textarea>
+            <textarea id="entryRarity" class="mini-area" rows="1" placeholder="Type rarity"></textarea>
             <button type="button" class="expand-btn" data-target="entryRarity">⤢</button>
           </div>
         </div>
       </div>
-      <div class="field" id="entryQuantityField"><label>Antall <small>– for items du kan ha flere av</small></label>
+      <div class="field" id="entryQuantityField"><label>Quantity <small>– for items you can have several of</small></label>
         <input id="entryQuantity" type="number" min="1" value="1" />
       </div>
-      <div class="field"><label>Hvor i historien <small>– bok/kapittel der dette skjedde. Styrer når det dukker opp i lister (skjules til du har lest dit).</small></label>
-        <div class="two"><input id="entryBook" type="number" min="1" placeholder="Bok" /><input id="entryChapter" type="number" min="1" placeholder="Kapittel" /></div>
+      <div class="field"><label>Where in the story <small>– book/chapter this happened. Controls when it appears in lists (hidden until you've read that far).</small></label>
+        <div class="two"><input id="entryBook" type="number" min="1" placeholder="Book" /><input id="entryChapter" type="number" min="1" placeholder="Chapter" /></div>
       </div>
-      <button class="secondary" id="skipEntry" type="button" style="display:none">Hopp over</button>
-      <button class="danger" id="deleteEntryBtn" type="button" style="display:none">Slett oppføring</button>
-      <button class="primary" id="saveEntry">Lagre oppføring</button>
+      <button class="secondary" id="skipEntry" type="button" style="display:none">Skip</button>
+      <button class="danger" id="deleteEntryBtn" type="button" style="display:none">Delete entry</button>
+      <button class="primary" id="saveEntry">Save entry</button>
     </div>
   </div>
 </dialog>
 
 <dialog id="settingsDialog">
-  <div class="modal-head"><h3>Innstillinger</h3><button class="icon-btn" data-close="settingsDialog">✕</button></div>
+  <div class="modal-head"><h3>Settings</h3><button class="icon-btn" data-close="settingsDialog">✕</button></div>
   <div class="modal-body">
     <div class="form-grid">
-      <label>Nivå<input id="levelInput" type="number" min="1" value="1" /></label>
-      <button class="secondary" id="exportBtn">Eksporter sikkerhetskopi</button>
-      <label class="secondary" style="display:block;text-align:center">Importer sikkerhetskopi<input id="importInput" type="file" accept=".json,application/json" hidden /></label>
-      <button class="danger" id="resetBtn">Slett alle lokale data</button>
-      <p style="font-size:12px;color:var(--muted)">Alt lagres i nettleserens lokale lagring på denne enheten.</p>
+      <label>Level<input id="levelInput" type="number" min="1" value="1" /></label>
+      <button class="secondary" id="exportBtn">Export backup</button>
+      <label class="secondary" style="display:block;text-align:center">Import backup<input id="importInput" type="file" accept=".json,application/json" hidden /></label>
+      <button class="danger" id="resetBtn">Delete all local data</button>
+      <p style="font-size:12px;color:var(--muted)">Everything is stored in the browser's local storage on this device.</p>
     </div>
   </div>
 </dialog>
@@ -5241,16 +5259,29 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     if(!state.stats[owner]) state.stats[owner]={str:0,int:0,con:0,dex:0,cha:0};
     for(const k of ['str','int','con','dex','cha']) if(typeof state.stats[owner][k]!=='number') state.stats[owner][k]=0;
   }
-  const SLOT_NAMES=['Hode','Skuldre','Bryst','Hender','Våpen','Hals','Rygg','Ben','Føtter','Tilbehør'];
+  const SLOT_NAMES=['Head','Shoulders','Chest','Hands','Weapon','Neck','Back','Legs','Feet','Accessory'];
+  const SLOT_MIGRATION={Hode:'Head',Skuldre:'Shoulders',Bryst:'Chest',Hender:'Hands',Våpen:'Weapon',Hals:'Neck',Rygg:'Back',Ben:'Legs',Føtter:'Feet',Tilbehør:'Accessory'};
+  if(state.equipped){
+    for(const [oldKey,newKey] of Object.entries(SLOT_MIGRATION)){
+      if(state.equipped[oldKey] && !state.equipped[newKey]){ state.equipped[newKey]=state.equipped[oldKey]; }
+      delete state.equipped[oldKey];
+    }
+  }
   if(!state.equipped) state.equipped={};
   for(const s of SLOT_NAMES) if(!(s in state.equipped)) state.equipped[s]=null;
-  const SLOT_ICONS={Hode:'⛑️',Skuldre:'🧥',Bryst:'👕',Hender:'🧤',Våpen:'🗡️',Hals:'📿',Rygg:'🎒',Ben:'👖',Føtter:'👢',Tilbehør:'💍'};
+  const SLOT_ICONS={Head:'⛑️',Shoulders:'🧥',Chest:'👕',Hands:'🧤',Weapon:'🗡️',Neck:'📿',Back:'🎒',Legs:'👖',Feet:'👢',Accessory:'💍'};
   const RARITY_TIERS=['Bronze','Silver','Gold','Platinum','Legendary','Celestial'];
   const RARITY_COLORS={Bronze:'#cd7f32',Silver:'#b0b8c1',Gold:'#f0c96d',Platinum:'#7fe0d0',Legendary:'#ff8c42',Celestial:'#b98cff'};
   if(!state.ratings) state.ratings={Carl:{views:0,followers:0,favorites:0,patrons:0}, Donut:{views:0,followers:0,favorites:0,patrons:0}};
   for(const owner of ['Carl','Donut']){
     if(!state.ratings[owner]) state.ratings[owner]={views:0,followers:0,favorites:0,patrons:0};
     for(const k of ['views','followers','favorites','patrons']) if(typeof state.ratings[owner][k]!=='number') state.ratings[owner][k]=0;
+  }
+  if(!state.profile) state.profile={Carl:{race:'',class:''}, Donut:{race:'',class:''}};
+  for(const owner of ['Carl','Donut']){
+    if(!state.profile[owner]) state.profile[owner]={race:'',class:''};
+    if(typeof state.profile[owner].race!=='string') state.profile[owner].race='';
+    if(typeof state.profile[owner].class!=='string') state.profile[owner].class='';
   }
   function getByPath(obj,path){ return path.split('.').reduce((o,k)=>o&&o[k],obj); }
   function setByPath(obj,path,val){ const p=path.split('.'); let o=obj; for(let i=0;i<p.length-1;i++) o=o[p[i]]; o[p[p.length-1]]=val; }
@@ -5336,10 +5367,16 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   function visibleEntries(){
     return state.entries.filter(e => Number(e.book)<state.book || (Number(e.book)===state.book && Number(e.chapter)<=state.chapter));
   }
-  function icon(type){ return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',level:'⬆️',stats:'📊',ratings:'📈',note:'📝'}[type] || '•'; }
-  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',level:'Level Up',stats:'Attributter',ratings:'Ratings',note:'Notat'}[type] || type; }
+  function icon(type,entry){
+    if(type==='buff'){
+      const text=`${entry?.title||''} ${entry?.description||''}`;
+      return /debuff/i.test(text) ? '💢' : '🌀';
+    }
+    return {achievement:'🏆',item:'🎒',skill:'✨',quest:'📜',level:'⬆️',stats:'📊',ratings:'📈',benefit:'🎖️',spell:'🔮',note:'📝'}[type] || '•';
+  }
+  function typeLabel(type){ return {achievement:'Achievement',item:'Item',skill:'Skill',quest:'Quest',level:'Level Up',stats:'Attributes',ratings:'Ratings',buff:'Buff/Debuff',benefit:'Benefit',spell:'Spell',note:'Note'}[type] || type; }
 
-  function ownerIcon(owner){ return {Carl:'🧍',Donut:'🐱',Begge:'🧍🐱'}[owner] || '👤'; }
+  function ownerIcon(owner){ return {Carl:'🧍',Donut:'🐱',Both:'🧍🐱',Begge:'🧍🐱'}[owner] || '👤'; }
 
   function inventoryTile(e){
     const equippedSlot=SLOT_NAMES.find(s=>state.equipped[s]===e.id);
@@ -5361,35 +5398,49 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       <button class="icon-btn qty-btn" data-id="${e.id}" data-delta="-1" style="padding:5px 9px">−</button>
       <button class="icon-btn qty-btn" data-id="${e.id}" data-delta="1" style="padding:5px 9px">+</button>` : '';
     return `<article class="entry" data-id="${e.id}">
-      <div class="entry-top"><h4>${icon(e.type)} ${esc(e.title)}${qtyBadge}</h4>
+      <div class="entry-top"><h4>${icon(e.type,e)} ${esc(e.title)}${qtyBadge}</h4>
         <div style="display:flex;gap:4px;flex-shrink:0">${qtyControls}<button class="icon-btn delete-entry" data-id="${e.id}" style="padding:5px 8px">🗑</button></div>
       </div>
       <p>${esc(e.description || '')}</p>
-      <div class="meta"><span class="chip">${icon(e.type)} ${typeLabel(e.type)}</span><span class="chip">${ownerIcon(e.owner)} ${esc(e.owner)}</span>
+      <div class="meta"><span class="chip">${icon(e.type,e)} ${typeLabel(e.type)}</span><span class="chip">${ownerIcon(e.owner)} ${esc(e.owner)}</span>
       <span class="chip">📖 Bok ${e.book} · Kap. ${e.chapter}</span>${e.rarity?`<span class="chip">⭐ ${esc(e.rarity)}</span>`:''}
       ${e.reward?`<span class="chip">🎁 ${esc(e.reward)}</span>`:''}</div>
     </article>`;
   }
 
   let achievementFilter='achievement';
-  const LOG_TYPE_LABELS={achievement:{title:'Achievements',empty:'Ingen achievements registrert.'},skill:{title:'Skills',empty:'Ingen skills registrert.'},quest:{title:'Quests',empty:'Ingen quests registrert.'}};
+  const LOG_TYPE_LABELS={
+    achievement:{title:'Achievements',empty:'No achievements logged yet.'},
+    skill:{title:'Skills',empty:'No skills logged yet.'},
+    quest:{title:'Quests',empty:'No quests logged yet.'},
+    buff:{title:'Buffs & Debuffs',empty:'No buffs/debuffs logged yet.'},
+    benefit:{title:'Benefits',empty:'No benefits logged yet.'},
+    spell:{title:'Spells',empty:'No spells logged yet.'}
+  };
 
   function render(){
     $('#bookSelect').value=state.book; $('#chapterInput').value=state.chapter; $('#levelValue').textContent=state.level; $('#levelInput').value=state.level;
     $('#dungeonLevelValue').textContent=state.dungeonLevel;
+    for(const owner of ['Carl','Donut']){
+      $(`#profile-${owner}-race`).textContent=state.profile[owner].race||'–';
+      $(`#profile-${owner}-class`).textContent=state.profile[owner].class||'–';
+    }
     $('#currentPoint').textContent=`Bok ${state.book} · Kap. ${state.chapter}`;
     const visible = visibleEntries().sort((a,b)=>b.createdAt-a.createdAt);
     const ach = visible.filter(e=>e.type==='achievement');
     const items = visible.filter(e=>e.type==='item');
     const skills = visible.filter(e=>e.type==='skill');
     const quests = visible.filter(e=>e.type==='quest');
+    const buffs = visible.filter(e=>e.type==='buff');
+    const benefits = visible.filter(e=>e.type==='benefit');
+    const spells = visible.filter(e=>e.type==='spell');
     $('#achievementCount').textContent=ach.length; $('#itemCount').textContent=items.length; $('#skillCount').textContent=skills.length;
-    const byType={achievement:ach, skill:skills, quest:quests};
+    const byType={achievement:ach, skill:skills, quest:quests, buff:buffs, benefit:benefits, spell:spells};
     const activeList=byType[achievementFilter]||ach;
     const meta=LOG_TYPE_LABELS[achievementFilter];
     $('#achievementScreenTitle').textContent=meta.title;
-    $('#achievementLabel').textContent=`${activeList.length} totalt`;
-    $('#recentList').innerHTML=visible.slice(0,6).map(entryCard).join('') || `<div class="empty">Ingen registreringer ennå.</div>`;
+    $('#achievementLabel').textContent=`${activeList.length} total`;
+    $('#recentList').innerHTML=visible.slice(0,6).map(entryCard).join('') || `<div class="empty">No entries yet.</div>`;
     $('#achievementList').innerHTML=activeList.map(entryCard).join('') || `<div class="empty">${meta.empty}</div>`;
     const sortedItems=[...items].sort((a,b)=>{
       const aEquipped=SLOT_NAMES.some(s=>state.equipped[s]===a.id);
@@ -5398,14 +5449,14 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       return b.createdAt-a.createdAt;
     });
     $('#inventoryLabel').textContent=`${items.length} items`;
-    $('#inventoryList').innerHTML=sortedItems.map(inventoryTile).join('') || `<div class="empty">Inventory er tomt.</div>`;
+    $('#inventoryList').innerHTML=sortedItems.map(inventoryTile).join('') || `<div class="empty">Inventory is empty.</div>`;
     const timeline=[...visible].sort((a,b)=>(a.book-b.book)||(a.chapter-b.chapter)||(a.createdAt-b.createdAt));
-    $('#timelineList').innerHTML=timeline.map(entryCard).join('') || `<div class="empty">Tidslinjen er tom.</div>`;
+    $('#timelineList').innerHTML=timeline.map(entryCard).join('') || `<div class="empty">Timeline is empty.</div>`;
     $$('.delete-entry').forEach(btn=>btn.onclick=(ev)=>{
       ev.stopPropagation();
       state.entries=state.entries.filter(e=>e.id!==btn.dataset.id);
       for(const s of SLOT_NAMES) if(state.equipped[s]===btn.dataset.id) state.equipped[s]=null;
-      persist();render();toast('Slettet');
+      persist();render();toast('Deleted');
     });
     $$('.qty-btn').forEach(btn=>btn.onclick=(ev)=>{
       ev.stopPropagation();
@@ -5416,7 +5467,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       if(item.quantity<=0){
         state.entries=state.entries.filter(e=>e.id!==id);
         for(const s of SLOT_NAMES) if(state.equipped[s]===id) state.equipped[s]=null;
-        toast('Brukt opp');
+        toast('Used up');
       }
       persist(); render();
     });
@@ -5481,12 +5532,12 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     updateQuantityFieldVisibility();
     const info=$('#entryQueueInfo'), skipBtn=$('#skipEntry'), delBtn=$('#deleteEntryBtn'), heading=$('#entryDialogTitle');
     if(reviewQueue.length>1){
-      info.textContent=`Oppføring ${reviewIndex+1} av ${reviewQueue.length}`;
+      info.textContent=`Entry ${reviewIndex+1} of ${reviewQueue.length}`;
       info.style.display='block'; skipBtn.style.display='block';
     } else {
       info.textContent=''; info.style.display='none'; skipBtn.style.display='none';
     }
-    heading.textContent = editingId ? 'Rediger oppføring' : 'Ny oppføring';
+    heading.textContent = editingId ? 'Edit entry' : 'New entry';
     delBtn.style.display = editingId ? 'block' : 'none';
     const dlg=$('#entryDialog');
     if(!dlg.open) dlg.showModal();
@@ -5515,7 +5566,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     editingId=null;
     reviewQueue = (entries && entries.length) ? entries : [parseText('')];
     reviewIndex = 0;
-    if(reviewQueue.length>1) toast(`Fant ${reviewQueue.length} oppføringer`);
+    if(reviewQueue.length>1) toast(`Found ${reviewQueue.length} entries`);
     showQueueEntry();
   }
 
@@ -5640,7 +5691,11 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     const lower=cleaned.toLowerCase();
     let type='note';
     if(/l[e3]v[e3]l\s*up/.test(lower)) type='level';
+    else if(/new\s+t[il1]tle/.test(lower)) type='achievement';
     else if(/ach[il1]?[e3]?v[e3]?m[e3]?nt/.test(lower)) type='achievement';
+    else if(/\bdebuff\b|\bbuff\b/.test(lower)) type='buff';
+    else if(/\bbenefit\b/.test(lower)) type='benefit';
+    else if(/\bspell\b|learned .*spell|cast[s]? .*spell/.test(lower)) type='spell';
     else if(/new\s+sk\w*ll/.test(lower) || /sk\w*ll/.test(lower)) type='skill';
     else if(/qu\w*st/.test(lower)) type='quest';
     else if(/[il1]tem/.test(lower) || /you\s+have\s+rece\w*ved/.test(lower) || /obta\w*ned/.test(lower)) type='item';
@@ -5648,6 +5703,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     let title='';
     const patterns=[
       /l[e3]v[e3]l\s*up!?\s*[:\-]?\s*([^.!?]{0,80})/i,
+      /new\s+t[il1]tle!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /new\s+ach[il1]?[e3]?v[e3]?m[e3]?nt!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /ach[il1]?[e3]?v[e3]?m[e3]?nt\s+unl\w*ck\w*!?\s*[:\-]?\s*([^.!?]{3,80})/i,
       /earned[^.!?]{0,40}?ach[il1]?[e3]?v[e3]?m[e3]?nt!?\s*[:\-]?\s*([^.!?]{3,80})/i,
@@ -5663,10 +5719,10 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       if(lvlMatch) levelValue=parseInt(lvlMatch[1],10);
       title = levelValue ? `Level ${levelValue}` : (title || 'Level Up');
     }
-    if(!title) title=cleaned.split(/[.!?]/)[0].slice(0,70) || 'Ny oppføring';
+    if(!title) title=cleaned.split(/[.!?]/)[0].slice(0,70) || 'New entry';
 
     let reward='';
-    const rewardMatch=cleaned.match(/(?:reward|belønning)\s*[:\-]\s*([^.!?]{2,100})/i);
+    const rewardMatch=cleaned.match(/reward\s*[:\-]\s*([^.!?]{2,100})/i);
     if(rewardMatch){
       reward=rewardMatch[1].trim()
         .replace(/^you(?:'ve| have)?\s+(?:received|got|gotten|obtained|earned)\s+(?:a|an|the)?\s*/i,'')
@@ -5706,20 +5762,30 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   $('#chapterInput').onchange=e=>{state.chapter=Math.max(1,Number(e.target.value)||1);persist();render();};
   $('#levelInput').onchange=e=>{state.level=Math.max(1,Number(e.target.value)||1);persist();render();};
 
-  function openValueEditor(stat,label){
+  function openValueEditor(stat,label,isText){
     $('#statEditTitle').textContent=label;
-    $('#statEditInput').value=getByPath(state,stat);
-    $('#statEditInput').dataset.stat=stat;
+    const input=$('#statEditInput');
+    input.type = isText ? 'text' : 'number';
+    input.style.textAlign = isText ? 'left' : 'center';
+    input.value=getByPath(state,stat)||(isText?'':0);
+    input.dataset.stat=stat;
+    input.dataset.text = isText ? '1' : '';
     $('#statEditDialog').showModal();
-    $('#statEditInput').focus();
-    $('#statEditInput').select();
+    input.focus();
+    input.select();
   }
   $$('.level-pill').forEach(pill=>pill.onclick=()=>openValueEditor(pill.dataset.stat,pill.dataset.label));
+  $$('.profile-chip').forEach(chip=>chip.onclick=()=>openValueEditor(chip.dataset.stat,chip.dataset.label,true));
   $('#statEditSave').onclick=()=>{
-    const stat=$('#statEditInput').dataset.stat;
-    const isNested=stat.includes('.');
-    const val=Math.max(isNested?0:1,Number($('#statEditInput').value)||0);
-    setByPath(state,stat,val);
+    const input=$('#statEditInput');
+    const stat=input.dataset.stat;
+    if(input.dataset.text){
+      setByPath(state,stat,input.value.trim());
+    } else {
+      const isNested=stat.includes('.');
+      const val=Math.max(isNested?0:1,Number(input.value)||0);
+      setByPath(state,stat,val);
+    }
     persist(); render();
     $('#statEditDialog').close();
     if($('#statGroupDialog').open) refreshStatGroup();
@@ -5818,7 +5884,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   $('#saveEntry').onclick=()=>{
     const fields={
       type:$('#entryType').value, owner:$('#entryOwner').value,
-      title:$('#entryTitle').value.trim()||'Uten navn',
+      title:$('#entryTitle').value.trim()||'Untitled',
       description:$('#entryDescription').value.trim(),
       reward:$('#entryReward').value.trim(), rarity:$('#entryRarity').value.trim(),
       quantity:Math.max(1,Number($('#entryQuantity').value)||1),
@@ -5833,7 +5899,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     if(editingId){
       const idx=state.entries.findIndex(e=>e.id===editingId);
       if(idx>-1) state.entries[idx]={...state.entries[idx], ...fields};
-      editingId=null; persist(); render(); $('#entryDialog').close(); toast('Oppdatert');
+      editingId=null; persist(); render(); $('#entryDialog').close(); toast('Updated');
       return;
     }
     if(fields.type==='item'){
@@ -5843,10 +5909,10 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
         if(fields.statBonuses) match.statBonuses=fields.statBonuses;
         persist(); render();
         if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
-          reviewIndex++; toast(`Slått sammen – nå ${match.quantity} stk`); showQueueEntry();
+          reviewIndex++; toast(`Merged – now ${match.quantity}`); showQueueEntry();
         } else {
           reviewQueue=[]; reviewIndex=0; $('#entryDialog').close();
-          toast(`Slått sammen – nå ${match.quantity} stk`);
+          toast(`Merged – now ${match.quantity}`);
         }
         return;
       }
@@ -5855,16 +5921,16 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     state.entries.push(entry); persist(); render();
     if(pendingEquipSlot){ state.equipped[pendingEquipSlot]=entry.id; pendingEquipSlot=null; persist(); render(); }
     if(reviewQueue.length && reviewIndex < reviewQueue.length-1){
-      reviewIndex++; toast('Lagret – neste oppføring'); showQueueEntry();
+      reviewIndex++; toast('Saved – next entry'); showQueueEntry();
     } else {
       reviewQueue=[]; reviewIndex=0; $('#entryDialog').close();
-      toast(fields.type==='level' ? `Lagret – nivå ${state.level}` : (statsApplied ? `Lagret – attributter oppdatert` : (ratingsApplied ? `Lagret – ratings oppdatert` : 'Lagret')));
+      toast(fields.type==='level' ? `Saved – level ${state.level}` : (statsApplied ? `Saved – attributes updated` : (ratingsApplied ? `Saved – ratings updated` : 'Saved')));
     }
   };
 
   $('#deleteEntryBtn').onclick=()=>{
     if(editingId){ state.entries=state.entries.filter(e=>e.id!==editingId); persist(); render(); }
-    editingId=null; $('#entryDialog').close(); toast('Slettet');
+    editingId=null; $('#entryDialog').close(); toast('Deleted');
   };
 
   $('#skipEntry').onclick=()=>{
@@ -5877,7 +5943,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   $('#analyseBtn').onclick=()=>{
     const text=$('#rawText').value.trim();
-    if(!text){toast('Legg inn tekst først');return;}
+    if(!text){toast('Enter text first');return;}
     startReviewQueue(splitEntries(text));
   };
 
@@ -5885,7 +5951,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
   async function getOcrWorker(){
     if(!ocrWorker){
       ocrWorker=await Tesseract.createWorker('eng',1,{logger:m=>{
-        if(m.status==='recognizing text') $('#ocrProgress').textContent=`Leser tekst… ${Math.round((m.progress||0)*100)} %`;
+        if(m.status==='recognizing text') $('#ocrProgress').textContent=`Reading text… ${Math.round((m.progress||0)*100)}%`;
       }});
       await ocrWorker.setParameters({tessedit_pageseg_mode:'6'});
     }
@@ -5894,16 +5960,16 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   async function runOCR(file){
     const img=$('#imagePreview'); img.src=URL.createObjectURL(file); img.style.display='block';
-    $('#ocrProgress').textContent='Leser tekst…';
+    $('#ocrProgress').textContent='Reading text…';
     try{
       const worker=await getOcrWorker();
       const result=await worker.recognize(file);
       const text=result.data.text.trim();
       $('#rawText').value=text;
-      $('#ocrProgress').textContent='Teksten er lest. Kontroller før lagring.';
+      $('#ocrProgress').textContent='Text has been read. Check before saving.';
       startReviewQueue(splitEntries(text));
     }catch(err){
-      console.error(err); $('#ocrProgress').textContent='OCR feilet. Skriv eller lim inn teksten manuelt.';
+      console.error(err); $('#ocrProgress').textContent='OCR failed. Type or paste the text manually.';
     }
   }
 
@@ -5915,14 +5981,14 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
 
   let cameraStream=null;
   async function openCamera(){
-    if(!navigator.mediaDevices?.getUserMedia){ toast('Kamera støttes ikke i denne nettleseren'); return; }
+    if(!navigator.mediaDevices?.getUserMedia){ toast('Camera not supported in this browser'); return; }
     try{
       cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
       $('#cameraView').srcObject=cameraStream;
       $('#cameraDialog').showModal();
     }catch(err){
       console.error(err);
-      toast('Fikk ikke kameratilgang. Bruk «Velg fra bibliotek» i stedet.');
+      toast('Could not access camera. Use “Choose from library” instead.');
     }
   }
   function closeCamera(){
@@ -6037,13 +6103,13 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
     try{
       const imported=JSON.parse(await f.text());
       if(!Array.isArray(imported.entries)) throw new Error('Ugyldig fil');
-      Object.assign(state,imported);persist();render();toast('Sikkerhetskopi importert');
-    }catch{toast('Kunne ikke importere filen');}
+      Object.assign(state,imported);persist();render();toast('Backup imported');
+    }catch{toast('Could not import the file');}
   };
 
   $('#resetBtn').onclick=()=>{
-    if(confirm('Slette alle lokale data?')){
-      state.entries=[];state.book=1;state.chapter=1;state.level=1;persist();render();$('#settingsDialog').close();toast('Data slettet');
+    if(confirm('Delete all local data?')){
+      state.entries=[];state.book=1;state.chapter=1;state.level=1;persist();render();$('#settingsDialog').close();toast('Data deleted');
     }
   };
 
@@ -6079,7 +6145,7 @@ YkhETppSGUrjiEqlm4uYCz8ncQAgCAD8HBrDLWgO4BvcChB4QBAACAIBgCAAEAQCAEEAIAgEAIIAQBAI
       const availableItems=visibleEntries().filter(e=>e.type==='item');
       $('#slotItemList').innerHTML=availableItems.length
         ? availableItems.map(itemPickerRow).join('')
-        : `<div class="empty">Ingen items registrert ennå.</div>`;
+        : `<div class="empty">No items registered yet.</div>`;
       $$('.slot-pick-row').forEach(btn=>btn.onclick=()=>{
         state.equipped[slot]=btn.dataset.id; persist(); render();
         $('#slotDialog').close();
